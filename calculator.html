@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>rogerros.com | Calculator</title>
+    <style>
+        /* Estilos generales */
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1f1c2c, #928dab);
+            font-family: 'Roboto', sans-serif;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        /* Estilos del menú */
+        #menu {
+            position: fixed;
+            top: -60px; /* Oculta parcialmente el menú */
+            left: 50%;
+            transform: translateX(-50%);
+            height: 60px;
+            background-color: #666;
+            border-radius: 25px;
+            overflow: visible;
+            transition: top 0.3s;
+            z-index: 1000;
+            display: inline-block;
+            white-space: nowrap;
+            padding: 0 10px;
+        }
+
+        .botones {
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+        }
+
+        .botones a {
+            margin: 0 5px;
+            padding: 10px 15px;
+            background-color: #888;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 15px;
+            transition: background-color 0.3s;
+        }
+
+        .botones a:hover {
+            background-color: #007BFF;
+        }
+
+        /* Contenedor principal */
+        .calculator {
+            width: 400px;
+            margin: 150px auto; /* Aumentamos el margen superior para bajar la calculadora */
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Pantalla */
+        .calculator .display {
+            background: transparent;
+            padding: 20px;
+            font-size: 32px;
+            text-align: right;
+            color: #fff;
+            min-height: 80px;
+            word-wrap: break-word;
+            box-sizing: border-box;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Botones */
+        .calculator .buttons {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-gap: 1px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .calculator .buttons button {
+            background: rgba(0,0,0,0.2);
+            border: none;
+            padding: 20px;
+            font-size: 18px;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calculator .buttons button:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .calculator .buttons button:active {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Botones especiales */
+        .calculator .buttons button.function {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .calculator .buttons button.equals {
+            grid-column: span 6;
+            background: #f39c12;
+        }
+
+        .calculator .buttons button.equals:hover {
+            background: #e67e22;
+        }
+
+        /* Efecto de onda al hacer clic */
+        .calculator .buttons button::after {
+            content: '';
+            position: absolute;
+            background: rgba(255,255,255,0.2);
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .calculator .buttons button:active::after {
+            width: 200px;
+            height: 200px;
+            transition: width 0.2s ease-out, height 0.2s ease-out;
+        }
+
+        /* Responsividad */
+        @media screen and (max-width: 420px) {
+            .calculator {
+                width: 100%;
+                margin: 0;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Menú deslizante -->
+    <nav id="menu">
+        <div class="botones">
+            <a href="index.html">Home</a>
+            <a href="calculator.html">Calculator</a>
+            <a href="nexus.html">Nexus</a>
+        </div>
+    </nav>
+
+    <div class="calculator">
+        <div class="display" id="display"></div>
+        <div class="buttons">
+            <!-- Fila 1 -->
+            <button class="function" onclick="clearDisplay()">C</button>
+            <button class="function" onclick="insertSymbol('(')">(</button>
+            <button class="function" onclick="insertSymbol(')')">)</button>
+            <button class="function" onclick="insertSymbol('%')">%</button>
+            <button class="function" onclick="insertSymbol('√(')">√</button>
+            <button class="function" onclick="insertSymbol('^')">^</button>
+
+            <!-- Fila 2 -->
+            <button onclick="insertSymbol('7')">7</button>
+            <button onclick="insertSymbol('8')">8</button>
+            <button onclick="insertSymbol('9')">9</button>
+            <button class="function" onclick="insertSymbol('/')">/</button>
+            <button class="function" onclick="insertSymbol('sin(')">sin</button>
+            <button class="function" onclick="insertSymbol('cos(')">cos</button>
+
+            <!-- Fila 3 -->
+            <button onclick="insertSymbol('4')">4</button>
+            <button onclick="insertSymbol('5')">5</button>
+            <button onclick="insertSymbol('6')">6</button>
+            <button class="function" onclick="insertSymbol('*')">×</button>
+            <button class="function" onclick="insertSymbol('tan(')">tan</button>
+            <button class="function" onclick="insertSymbol('ln(')">ln</button>
+
+            <!-- Fila 4 -->
+            <button onclick="insertSymbol('1')">1</button>
+            <button onclick="insertSymbol('2')">2</button>
+            <button onclick="insertSymbol('3')">3</button>
+            <button class="function" onclick="insertSymbol('-')">−</button>
+            <button class="function" onclick="insertSymbol('log(')">log</button>
+            <button class="function" onclick="insertSymbol('exp(')">exp</button>
+
+            <!-- Fila 5 -->
+            <button onclick="insertSymbol('0')">0</button>
+            <button onclick="insertSymbol('.')">.</button>
+            <button class="function" onclick="useAns()">Ans</button>
+            <button class="function" onclick="insertSymbol('+')">+</button>
+            <button class="function" onclick="insertSymbol('π')">π</button>
+            <button class="function" onclick="insertSymbol('e')">e</button>
+
+            <!-- Fila 6 -->
+            <button class="function" onclick="backspace()">←</button>
+            <button class="equals" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <!-- Efecto de partículas en el fondo -->
+    <canvas id="particleCanvas"></canvas>
+
+    <script>
+        // Variables globales
+        let display = document.getElementById('display');
+        let expression = '';
+        let previousAnswer = '';
+        let particleCanvas = document.getElementById('particleCanvas');
+        let ctx = particleCanvas.getContext('2d');
+        let particles = [];
+
+        // Funciones de la calculadora
+        function insertSymbol(symbol) {
+            expression += symbol;
+            updateDisplay();
+        }
+
+        function clearDisplay() {
+            expression = '';
+            updateDisplay();
+        }
+
+        function backspace() {
+            expression = expression.slice(0, -1);
+            updateDisplay();
+        }
+
+        function useAns() {
+            expression += previousAnswer;
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            display.innerHTML = expression;
+        }
+
+        function calculate() {
+            try {
+                let evalExpression = expression;
+                evalExpression = evalExpression.replace(/π/g, 'Math.PI');
+                evalExpression = evalExpression.replace(/e/g, 'Math.E');
+                evalExpression = evalExpression.replace(/√\(/g, 'Math.sqrt(');
+                evalExpression = evalExpression.replace(/sin\(/g, 'Math.sin(');
+                evalExpression = evalExpression.replace(/cos\(/g, 'Math.cos(');
+                evalExpression = evalExpression.replace(/tan\(/g, 'Math.tan(');
+                evalExpression = evalExpression.replace(/log\(/g, 'Math.log10(');
+                evalExpression = evalExpression.replace(/ln\(/g, 'Math.log(');
+                evalExpression = evalExpression.replace(/exp\(/g, 'Math.exp(');
+                evalExpression = evalExpression.replace(/Ans/g, previousAnswer);
+                evalExpression = evalExpression.replace(/÷/g, '/');
+                evalExpression = evalExpression.replace(/×/g, '*');
+                evalExpression = evalExpression.replace(/−/g, '-');
+                evalExpression = evalExpression.replace(/\^/g, '**');
+
+                let result = eval(evalExpression);
+                if (result === Infinity || result === -Infinity || isNaN(result)) {
+                    throw 'Error matemático';
+                }
+                previousAnswer = result;
+                expression = result.toString();
+                updateDisplay();
+            } catch (e) {
+                expression = '';
+                updateDisplay();
+                alert('Entrada inválida');
+            }
+        }
+
+        // Efecto de partículas en el fondo
+        function resizeCanvas() {
+            particleCanvas.width = window.innerWidth;
+            particleCanvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function createParticles() {
+            for (let i = 0; i < 100; i++) {
+                particles.push({
+                    x: Math.random() * particleCanvas.width,
+                    y: Math.random() * particleCanvas.height,
+                    radius: Math.random() * 2 + 1,
+                    vx: Math.random() * 0.5 - 0.25,
+                    vy: Math.random() * 0.5 - 0.25
+                });
+            }
+        }
+
+        function drawParticles() {
+            ctx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            particles.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0 || p.x > particleCanvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > particleCanvas.height) p.vy *= -1;
+            });
+            requestAnimationFrame(drawParticles);
+        }
+
+        createParticles();
+        drawParticles();
+
+        // JavaScript para el menú deslizante
+        document.addEventListener('mousemove', function(e) {
+            var menu = document.getElementById('menu');
+            if (e.clientY < 60) {
+                menu.style.top = '0';
+            } else {
+                menu.style.top = '-60px';
+            }
+        });
+    </script>
+</body>
+</html>
