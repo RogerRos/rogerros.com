@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Experiencia de Video Asombrosa</title>
+    <style>
+        /* Estilos generales */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* Menú deslizante */
+        #menu {
+            position: fixed;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            height: 60px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 25px;
+            overflow: visible;
+            transition: top 0.3s;
+            z-index: 1000;
+            display: inline-block;
+            white-space: nowrap;
+            padding: 0 10px;
+        }
+
+        .botones {
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+        }
+
+        .botones a {
+            margin: 0 5px;
+            padding: 10px 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 15px;
+            transition: background-color 0.3s;
+        }
+
+        .botones a:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Efecto de fondo */
+        #background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, #1b2735 0%, #090a0f 100%);
+            overflow: hidden;
+            z-index: -2;
+        }
+
+        /* Contenedor del video */
+        .video-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 800px;
+            aspect-ratio: 16 / 9;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+        }
+
+        .video-thumbnail,
+        .video-iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: opacity 1s;
+            opacity: 1;
+        }
+
+        .video-thumbnail {
+            background-image: url('https://img.youtube.com/vi/dWvFd-o8cQE/maxresdefault.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHBhdGggZD0iTTQwIDBDMTguMzc2IDAgMCAxOC4zNzYgMCA0MHMyMS42MjQgNDAgNDAgNDAgNDAtMTguMzc2IDQwLTQwUzYxLjYyNCAwIDQwIDB6bTAgNzBjLTIxLjkwMSAwLTMwLTE4LjA5OS0zMC0zMFMxOC4wOTkgMTAgNDAgMTBzMzAgOC4wOTkgMzAgMzAtOC4wOTkgMzAtMzAgMzB6IiBmaWxsPSJ3aGl0ZSIvPjxwYXRoIGQ9Ik00NiA0MC4wMDNsLTE4IDEwdi0yMGwxOCAxMHoiIGZpbGw9IiMwMDAiLz48L3N2Zz4=');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            transition: transform 0.3s;
+        }
+
+        .play-button:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .video-iframe {
+            border: none;
+            display: none;
+            opacity: 0;
+        }
+
+        /* Canvas para efecto adicional */
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Menú deslizante -->
+    <nav id="menu">
+        <div class="botones">
+            <a href="index.html">Home</a>
+            <a href="calculator.html">Calculator</a>
+            <a href="music.html">Music</a>
+        </div>
+    </nav>
+
+    <!-- Fondo animado -->
+    <div id="background"></div>
+    <canvas id="star-canvas"></canvas>
+
+    <!-- Contenedor del video -->
+    <div class="video-container" id="video-container">
+        <div class="video-thumbnail" id="video-thumbnail">
+            <div class="play-button"></div>
+        </div>
+        <iframe class="video-iframe" id="video-iframe" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+
+    <script>
+        // Funcionalidad del menú deslizante
+        document.addEventListener('mousemove', function(e) {
+            var menu = document.getElementById('menu');
+            if (e.clientY < 60) {
+                menu.style.top = '0';
+            } else {
+                menu.style.top = '-60px';
+            }
+        });
+
+        // Funcionalidad del video
+        var videoContainer = document.getElementById('video-container');
+        var videoThumbnail = document.getElementById('video-thumbnail');
+        var videoIframe = document.getElementById('video-iframe');
+
+        videoContainer.addEventListener('click', function() {
+            // Ocultar la miniatura con una transición
+            videoThumbnail.style.opacity = '0';
+            setTimeout(function() {
+                videoThumbnail.style.display = 'none';
+            }, 1000); // Tiempo de la transición
+
+            // Mostrar el iframe del video
+            videoIframe.style.display = 'block';
+            setTimeout(function() {
+                videoIframe.style.opacity = '1';
+            }, 50);
+
+            // Iniciar el video
+            videoIframe.src = 'https://www.youtube.com/embed/dWvFd-o8cQE?autoplay=1&controls=1&rel=0&showinfo=0';
+        });
+
+        // Efecto de fondo (animación de estrellas)
+        var canvas = document.getElementById('star-canvas');
+        var ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        var stars = [];
+        for (var i = 0; i < 150; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 1.5,
+                vx: (Math.random() - 0.5) * 0.2,
+                vy: (Math.random() - 0.5) * 0.2
+            });
+        }
+
+        function animateStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#ffffff';
+            stars.forEach(function(star) {
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                star.x += star.vx;
+                star.y += star.vy;
+
+                if (star.x < 0 || star.x > canvas.width) star.vx *= -1;
+                if (star.y < 0 || star.y > canvas.height) star.vy *= -1;
+            });
+            requestAnimationFrame(animateStars);
+        }
+        animateStars();
+    </script>
+</body>
+</html>
