@@ -2,40 +2,31 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>rogerros.com | Lobby</title>
+    <title>Galería Impresionante</title>
     <style>
-        /* Estilos generales de la página */
+        /* Estilos generales */
         body {
             margin: 0;
-            background-color: black;
-            color: #00ff00;
-            font-family: monospace;
-        }
-        canvas {
-            display: block;
-        }
-        #linkContainer {
-            text-align: center;
-            margin-top: -50px; /* Ajuste para subir el texto */
-        }
-        #animatedLink {
-            color: #00ff00;
-            font-size: 1.2em;
-            text-decoration: none;
-        }
-        #animatedLink:hover {
-            color: #00ff99;
+            padding: 0;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #2e2a3d, #1a1b24);
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #fff;
         }
 
-        /* Estilos del menú */
+        /* Menú deslizante */
         #menu {
             position: fixed;
-            top: -60px; /* Oculta parcialmente el menú */
+            top: -50px;
             left: 50%;
             transform: translateX(-50%);
-            height: 60px;
-            background-color: #666;
-            border-radius: 25px;
+            height: 50px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
             overflow: visible;
             transition: top 0.3s;
             z-index: 1000;
@@ -53,104 +44,193 @@
 
         .botones a {
             margin: 0 5px;
-            padding: 10px 15px;
-            background-color: #888;
+            padding: 8px 12px;
+            background-color: rgba(255, 255, 255, 0.2);
             color: #fff;
             text-decoration: none;
-            border-radius: 15px;
+            border-radius: 12px;
             transition: background-color 0.3s;
         }
 
         .botones a:hover {
-            background-color: #007BFF;
+            background-color: rgba(255, 255, 255, 0.4);
         }
+
+        /* Galería */
+        .gallery {
+            position: relative;
+            width: 90vw;
+            height: 70vh;
+            perspective: 1500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .carousel {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease-out;
+        }
+
+        .carousel a {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: var(--image-width, 50vw);
+            height: var(--image-height, 30vw);
+            max-width: 500px;
+            max-height: 300px;
+            margin: calc(-1 * var(--image-height, 30vw) / 2) calc(-1 * var(--image-width, 50vw) / 2);
+            transform-style: preserve-3d;
+            transition: transform 0.5s, opacity 0.5s;
+            opacity: 0.7;
+        }
+
+        .carousel a img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Efecto al acercarse al centro */
+        .carousel a.active {
+            transform: translateZ(var(--active-translateZ, 300px));
+            opacity: 1;
+        }
+
+        /* Botón de autorotación */
+        #autorotation-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+
+        #autorotation-btn:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+
+        #autorotation-btn::before {
+            content: '\21BB'; /* Unicode character for a simple rotation arrow */
+            font-size: 24px;
+            color: #fff;
+        }
+
     </style>
 </head>
 <body>
 
-<!-- Menú deslizante -->
-<nav id="menu">
-    <div class="botones">
-        <a href="index.html">Home</a>
-        <a href="calculator.html">Calculator</a>
-        <a href="music.html">Music</a>
+    <!-- Menú deslizante -->
+    <nav id="menu">
+        <div class="botones">
+            <a href="index.html">Home</a>
+            <a href="calculator.html">Calculator</a>
+            <a href="music.html">Music</a>
+            <a href="cube.html">Cube</a>
+        </div>
+    </nav>
+
+    <!-- Galería de imágenes -->
+    <div class="gallery">
+        <div class="carousel" id="carousel">
+            <!-- Añade tus imágenes aquí -->
+            <a href="cube.html"><img src="images/modern_galery/cube.png" alt="Imagen 1"></a>
+            <a href="calculator.html"><img src="images/modern_galery/calculator.png" alt="Imagen 2"></a>
+            <a href="music.html"><img src="images/modern_galery/videoedit.png" alt="Imagen 3"></a>
+        </div>
     </div>
-</nav>
 
-<!-- Contenedor para el enlace animado -->
-<div id="linkContainer">
-    <a id="animatedLink"></a>
-</div>
+    <!-- Botón de autorotación -->
+    <button id="autorotation-btn"></button>
 
-<!-- Incluimos la biblioteca Three.js desde un CDN -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script>
-    // Código para el cubo 3D
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
+    <script>
+        // JavaScript para el menú deslizante
+        document.addEventListener('mousemove', function(e) {
+            var menu = document.getElementById('menu');
+            if (e.clientY < 60) {
+                menu.style.top = '0';
+            } else {
+                menu.style.top = '-50px';
+            }
+        });
 
-    const camera = new THREE.PerspectiveCamera(
-        75, window.innerWidth / window.innerHeight, 0.1, 1000
-    );
+        // Variables ajustables para la galería
+        const radius = 400; // Radio del carrusel
+        const imageWidth = 40; // Ancho de la imagen en vw
+        const imageHeight = 25; // Alto de la imagen en vw
+        let autorotate = true; // Estado de la rotación automática
+        let rotationSpeed = 5; // Velocidad de rotación por defecto
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+        // JavaScript para ajustar automáticamente la galería
+        const carousel = document.getElementById('carousel');
+        const items = carousel.getElementsByTagName('a');
+        const itemCount = items.length;
+        const angle = 360 / itemCount;
 
-    const geometry = new THREE.BoxGeometry();
-    const edges = new THREE.EdgesGeometry(geometry);
-    const material = new THREE.LineBasicMaterial({ color: 0x00ff00 });
-    const cube = new THREE.LineSegments(edges, material);
-    scene.add(cube);
+        document.documentElement.style.setProperty('--image-width', `${imageWidth}vw`);
+        document.documentElement.style.setProperty('--image-height', `${imageHeight}vw`);
+        document.documentElement.style.setProperty('--active-translateZ', `${radius / 2}px`);
 
-    camera.position.z = 5;
+        for (let i = 0; i < itemCount; i++) {
+            items[i].style.transform = `rotateY(${i * angle}deg) translateZ(${radius}px)`;
+        }
 
-    function animate() {
-        requestAnimationFrame(animate);
-        cube.rotation.x += 0.01;
-        cube.rotation.y += 0.01;
-        renderer.render(scene, camera);
-    }
-    animate();
+        // Efecto de acercamiento al centro
+        function updateActiveItem() {
+            const rotation = getComputedStyle(carousel).transform;
+            const values = rotation.split('(')[1].split(')')[0].split(',');
+            const angleY = Math.atan2(values[8], values[10]) * (180 / Math.PI);
+            let index = Math.round(-angleY / angle) % itemCount;
+            if (index < 0) index += itemCount;
 
-    window.addEventListener('resize', function () {
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-        renderer.setSize(width, height);
-        camera.aspect = width / height;
-        camera.updateProjectionMatrix();
-    });
+            for (let i = 0; i < itemCount; i++) {
+                items[i].classList.remove('active');
+            }
+            items[index].classList.add('active');
+        }
 
-    function typeText(element, text, speed) {
-        let index = 0;
-        function type() {
-            if (index < text.length) {
-                element.innerHTML += text.charAt(index);
-                index++;
-                setTimeout(type, speed);
+        setInterval(updateActiveItem, 100);
+
+        // JavaScript para deslizar con la rueda del ratón o touchpad
+        let currentAngle = 0;
+        function rotateCarousel(delta) {
+            const adjustedSpeed = delta * 0.05; // Ajusta la sensibilidad del desplazamiento
+            currentAngle += adjustedSpeed;
+            carousel.style.transform = `rotateY(${currentAngle}deg)`;
+        }
+
+        document.addEventListener('wheel', function(e) {
+            e.preventDefault();
+            rotateCarousel(e.deltaY);
+        }, { passive: false });
+
+        // Movimiento lento y constante del carrusel
+        function autoRotate() {
+            if (autorotate) {
+                rotateCarousel(rotationSpeed);
             }
         }
-        type();
-    }
+        setInterval(autoRotate, 50);
 
-    window.onload = function() {
-        const animatedLink = document.getElementById("animatedLink");
-        const text = "See the structure of the future page >>";
-        const linkUrl = "main.html";
-        animatedLink.href = linkUrl;
-        typeText(animatedLink, text, 100);
-    }
-
-    // JavaScript para el menú deslizante
-    document.addEventListener('mousemove', function(e) {
-        var menu = document.getElementById('menu');
-        if (e.clientY < 60) {
-            menu.style.top = '0';
-        } else {
-            menu.style.top = '-60px';
-        }
-    });
-</script>
-
+        // Botón para activar/desactivar la rotación automática
+        const autorotationBtn = document.getElementById('autorotation-btn');
+        autorotationBtn.addEventListener('click', function() {
+            autorotate = !autorotate;
+        });
+    </script>
 </body>
 </html>
