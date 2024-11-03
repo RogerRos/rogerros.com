@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>rogerros.com | Lobby</title>
+    <style>
+        /* Estilos generales de la página */
+        body {
+            margin: 0;
+            background-color: black;
+            color: #00ff00;
+            font-family: monospace;
+        }
+        canvas {
+            display: block;
+        }
+        #linkContainer {
+            text-align: center;
+            margin-top: -50px; /* Ajuste para subir el texto */
+        }
+        #animatedLink {
+            color: #00ff00;
+            font-size: 1.2em;
+            text-decoration: none;
+        }
+        #animatedLink:hover {
+            color: #00ff99;
+        }
+
+        /* Estilos del menú */
+        #menu {
+            position: fixed;
+            top: -60px; /* Oculta parcialmente el menú */
+            left: 50%;
+            transform: translateX(-50%);
+            height: 60px;
+            background-color: #666;
+            border-radius: 25px;
+            overflow: visible;
+            transition: top 0.3s;
+            z-index: 1000;
+            display: inline-block;
+            white-space: nowrap;
+            padding: 0 10px;
+        }
+
+        .botones {
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+        }
+
+        .botones a {
+            margin: 0 5px;
+            padding: 10px 15px;
+            background-color: #888;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 15px;
+            transition: background-color 0.3s;
+        }
+
+        .botones a:hover {
+            background-color: #007BFF;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Menú deslizante -->
+<nav id="menu">
+    <div class="botones">
+        <a href="index.html">Home</a>
+        <a href="calculator.html">Calculator</a>
+        <a href="music.html">Music</a>
+        <a href="cube.html">Cube</a>
+    </div>
+</nav>
+
+<!-- Contenedor para el enlace animado -->
+<div id="linkContainer">
+    <a id="animatedLink"></a>
+</div>
+
+<!-- Incluimos la biblioteca Three.js desde un CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+    // Código para el cubo 3D
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
+
+    const camera = new THREE.PerspectiveCamera(
+        75, window.innerWidth / window.innerHeight, 0.1, 1000
+    );
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    const geometry = new THREE.BoxGeometry();
+    const edges = new THREE.EdgesGeometry(geometry);
+    const material = new THREE.LineBasicMaterial({ color: 0x00ff00 });
+    const cube = new THREE.LineSegments(edges, material);
+    scene.add(cube);
+
+    camera.position.z = 5;
+
+    function animate() {
+        requestAnimationFrame(animate);
+        cube.rotation.x += 0.01;
+        cube.rotation.y += 0.01;
+        renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', function () {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        renderer.setSize(width, height);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+    });
+
+    function typeText(element, text, speed) {
+        let index = 0;
+        function type() {
+            if (index < text.length) {
+                element.innerHTML += text.charAt(index);
+                index++;
+                setTimeout(type, speed);
+            }
+        }
+        type();
+    }
+
+    window.onload = function() {
+        const animatedLink = document.getElementById("animatedLink");
+        const text = "See the structure of the future page >>";
+        const linkUrl = "main.html";
+        animatedLink.href = linkUrl;
+        typeText(animatedLink, text, 100);
+    }
+
+    // JavaScript para el menú deslizante
+    document.addEventListener('mousemove', function(e) {
+        var menu = document.getElementById('menu');
+        if (e.clientY < 60) {
+            menu.style.top = '0';
+        } else {
+            menu.style.top = '-60px';
+        }
+    });
+</script>
+
+</body>
+</html>
