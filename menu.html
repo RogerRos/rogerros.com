@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MENU</title>
+  <style>
+    :root{
+      --bg:#0b0b0b;
+      --fg:#e6e6e6;
+      --muted:#bdbdbd;
+      --stroke:#2a2a2a;
+      --stroke2:#3a3a3a;
+      --panel:#141414;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --blur: 6px;
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{ margin:0; font-family: var(--mono); }
+
+    .pcb-overlay{
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: none;
+      place-items: center;
+      background: rgba(0,0,0,.18);
+      backdrop-filter: blur(var(--blur));
+    }
+    .pcb-overlay.is-open{ display:grid; }
+
+    .pcb-panel{
+      width: calc(100vw - 28px);
+      height: calc(100vh - 28px);
+      border: 2px solid var(--stroke2);
+      background: rgba(0,0,0,0);
+      border-radius: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pcb-panel::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      opacity:.22;
+      background-image:
+        linear-gradient(to right, rgba(230,230,230,.07) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(230,230,230,.07) 1px, transparent 1px);
+      background-size: 56px 56px;
+      pointer-events:none;
+      z-index: 0;
+    }
+
+    .pcb-panel svg{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      pointer-events:none;
+      z-index: 1;
+    }
+    path.base{
+      fill:none;
+      stroke: rgba(230,230,230,.12);
+      stroke-width: 2;
+      shape-rendering: crispEdges;
+    }
+    path.active{
+      fill:none;
+      stroke: rgba(230,230,230,.32);
+      stroke-width: 2;
+      shape-rendering: crispEdges;
+      stroke-dasharray: 1400;
+      stroke-dashoffset: 1400;
+      opacity: 0;
+    }
+    path.active.on{
+      opacity: 1;
+      animation: dash 520ms linear forwards;
+    }
+    @keyframes dash { to { stroke-dashoffset: 0; } }
+
+    .close{
+      position:absolute;
+      right: 10px;
+      top: 10px;
+      border: 2px solid var(--fg);
+      background: rgba(20,20,20,.55);
+      color: var(--fg);
+      border-radius: 0;
+      width: 44px;
+      height: 44px;
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      font-family: var(--mono);
+      font-size: 14px;
+      line-height: 1;
+      z-index: 4;
+    }
+    .close:hover{
+      background: rgba(230,230,230,.92);
+      color: #0b0b0b;
+    }
+
+    .node{
+      position:absolute;
+      transform: translate(-50%, -50%);
+      width: min(180px, 22vw);
+      height: 54px;
+      border: 2px solid var(--fg);
+      background: rgba(20,20,20,.92);
+      border-radius: 0;
+      display:grid;
+      grid-template-columns: 1fr auto;
+      align-items:center;
+      gap: 10px;
+      padding: 0 10px;
+      cursor: pointer;
+      user-select:none;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      font-size: 12px;
+      z-index: 3;
+      overflow:hidden;
+    }
+    .node::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: rgba(20,20,20,.92);
+      z-index: 0;
+    }
+    .node > *{ position:relative; z-index: 1; }
+
+    .node:hover{
+      background: rgba(230,230,230,.92);
+      color: #0b0b0b;
+    }
+    .node:hover::before{ background: rgba(230,230,230,.92); }
+
+    .node:active{
+      transform: translate(-50%, -50%) translateY(1px);
+    }
+
+    .node .key{
+      color: var(--muted);
+      border: 2px solid var(--stroke2);
+      padding: 4px 8px;
+      border-radius: 0;
+      font-size: 11px;
+      background: rgba(0,0,0,.35);
+      white-space: nowrap;
+    }
+    .node:hover .key{
+      color:#0b0b0b;
+      border-color:#0b0b0b;
+      background: transparent;
+    }
+
+    @media (max-width: 980px){
+      .pcb-panel{ width: calc(100vw - 20px); height: calc(100vh - 20px); }
+      .node{ width: min(220px, 62vw); }
+    }
+  </style>
+</head>
+<body>
+  <div class="pcb-overlay" id="pcbOverlay" aria-hidden="true">
+    <div class="pcb-panel" role="dialog" aria-modal="true" aria-label="Navigation">
+      <button class="close" type="button" id="pcbClose" aria-label="Close">X</button>
+
+      <svg viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
+        <path class="base" d="M 140 140 L 420 140 Q 460 140 460 180 L 460 280" />
+        <path class="base" d="M 460 280 L 860 280 Q 900 280 900 240 L 900 140" />
+        <path class="base" d="M 460 280 L 460 410 Q 460 440 500 440 L 860 440" />
+        <path class="base" d="M 460 280 L 460 520 Q 460 560 420 560 L 140 560" />
+
+        <path class="active" id="t-home-hub" d="M 140 140 L 420 140 Q 460 140 460 180 L 460 280" />
+        <path class="active" id="t-hub-home" d="M 460 280 L 460 180 Q 460 140 420 140 L 140 140" />
+        <path class="active" id="t-hub-tools" d="M 460 280 L 860 280 Q 900 280 900 240 L 900 140" />
+        <path class="active" id="t-tools-hub" d="M 900 140 L 900 240 Q 900 280 860 280 L 460 280" />
+        <path class="active" id="t-hub-about" d="M 460 280 L 460 410 Q 460 440 500 440 L 860 440" />
+        <path class="active" id="t-about-hub" d="M 860 440 L 500 440 Q 460 440 460 410 L 460 280" />
+        <path class="active" id="t-hub-docs" d="M 460 280 L 460 520 Q 460 560 420 560 L 140 560" />
+        <path class="active" id="t-docs-hub" d="M 140 560 L 420 560 Q 460 560 460 520 L 460 280" />
+      </svg>
+
+      <div class="node" id="n-home" style="left: 14%; top: 23%;" data-go="#home">
+        <div>Home</div><div class="key">H</div>
+      </div>
+
+      <div class="node" id="n-hub" style="left: 46%; top: 46%;" data-go="#hub">
+        <div>Hub</div><div class="key">Enter</div>
+      </div>
+
+      <div class="node" id="n-tools" style="left: 90%; top: 23%;" data-go="#tools">
+        <div>Tools</div><div class="key">T</div>
+      </div>
+
+      <div class="node" id="n-about" style="left: 86%; top: 73%;" data-go="#about">
+        <div>About</div><div class="key">A</div>
+      </div>
+
+      <div class="node" id="n-docs" style="left: 14%; top: 93%;" data-go="#docs">
+        <div>Docs</div><div class="key">D</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const overlay = document.getElementById("pcbOverlay");
+      const closeBtn = document.getElementById("pcbClose");
+
+      const tracksByNode = {
+        "n-home": ["t-home-hub"],
+        "n-hub":  ["t-hub-home","t-hub-tools","t-hub-about","t-hub-docs"],
+        "n-tools":["t-tools-hub"],
+        "n-about":["t-about-hub"],
+        "n-docs": ["t-docs-hub"]
+      };
+
+      function isTypingContext(){
+        const el = document.activeElement;
+        if (!el) return false;
+        const tag = (el.tagName || "").toLowerCase();
+        if (tag === "input" || tag === "textarea" || tag === "select") return true;
+        if (el.isContentEditable) return true;
+        return false;
+      }
+
+      function setOpen(open){
+        overlay.classList.toggle("is-open", open);
+        overlay.setAttribute("aria-hidden", open ? "false" : "true");
+        document.body.classList.toggle("menu-open", open);
+        if (open) closeBtn.focus();
+      }
+
+      function toggle(){
+        setOpen(!overlay.classList.contains("is-open"));
+      }
+
+      function clearTracks(){
+        overlay.querySelectorAll("path.active").forEach(p => p.classList.remove("on"));
+      }
+
+      function pulseTracks(nodeId){
+        clearTracks();
+        const ids = tracksByNode[nodeId] || [];
+        ids.forEach(id => {
+          const p = document.getElementById(id);
+          if (!p) return;
+          p.classList.remove("on");
+          void p.getBoundingClientRect();
+          p.classList.add("on");
+        });
+      }
+
+      function navigateTo(target){
+        if (target && typeof target === "string"){
+          window.location.hash = target.replace(/^#/, "");
+        }
+        setOpen(false);
+      }
+
+      overlay.querySelectorAll(".node").forEach(node => {
+        node.addEventListener("mouseenter", () => pulseTracks(node.id));
+        node.addEventListener("mouseleave", clearTracks);
+        node.addEventListener("click", () => navigateTo(node.getAttribute("data-go")));
+      });
+
+      overlay.addEventListener("mousedown", (e) => {
+        if (e.target === overlay) setOpen(false);
+      });
+
+      closeBtn.addEventListener("click", () => setOpen(false));
+
+      window.addEventListener("keydown", (e) => {
+        const key = (e.key || "").toLowerCase();
+
+        if (!e.ctrlKey && !e.metaKey && !e.altKey && key === "m" && !isTypingContext()){
+          e.preventDefault();
+          toggle();
+          return;
+        }
+
+        if (!overlay.classList.contains("is-open")) return;
+
+        if (key === "escape"){
+          e.preventDefault();
+          setOpen(false);
+          return;
+        }
+
+        const map = { h:"#home", t:"#tools", a:"#about", d:"#docs" };
+        if (e.key === "Enter"){
+          e.preventDefault();
+          navigateTo("#hub");
+          return;
+        }
+        if (key in map){
+          e.preventDefault();
+          navigateTo(map[key]);
+        }
+      });
+
+      window.PCBMenu = { open: () => setOpen(true), close: () => setOpen(false), toggle };
+    })();
+  </script>
+</body>
+</html>
