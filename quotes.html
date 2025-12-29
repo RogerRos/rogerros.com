@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>QUOTES</title>
+  <style>
+    :root{
+      --bg:#0b0b0b;
+      --fg:#e6e6e6;
+      --muted:#bdbdbd;
+      --panel:#141414;
+      --panel2:#101010;
+      --stroke:#2a2a2a;
+      --stroke2:#3a3a3a;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --blur: 6px;
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--mono);
+      letter-spacing: .2px;
+    }
+
+    /* LEFT RAIL (menu trigger only) */
+    .rail{
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 56px;
+      border-right: 2px solid var(--stroke2);
+      background: var(--panel2);
+      display: grid;
+      place-items: start center;
+      padding-top: 12px;
+      z-index: 7;
+    }
+    .rail-btn{
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      background: var(--panel);
+      border: 2px solid var(--stroke2);
+      color: var(--fg);
+      cursor: pointer;
+      border-radius: 0;
+      font-family: var(--mono);
+    }
+    .rail-btn:hover{
+      background: var(--fg);
+      color: var(--bg);
+      border-color: var(--fg);
+    }
+    .rail-btn:active{
+      transform: translateY(1px);
+    }
+    .rail-glyph{
+      width: 18px;
+      height: 14px;
+      position: relative;
+    }
+    .rail-glyph::before,
+    .rail-glyph::after,
+    .rail-glyph span{
+      content:"";
+      position:absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: currentColor;
+    }
+    .rail-glyph::before{ top: 0; }
+    .rail-glyph span{ top: 6px; }
+    .rail-glyph::after{ bottom: 0; }
+
+    body.menu-open{
+      overflow:hidden;
+    }
+    body.menu-open main,
+    body.menu-open .rail{
+      filter: blur(var(--blur));
+    }
+
+    .wrap{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 14px;
+      padding-left: calc(14px + 56px);
+    }
+
+    .bar{
+      display:grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    input[type="search"], select{
+      width: 100%;
+      padding: 12px 12px;
+      border: 2px solid var(--stroke2);
+      border-radius: 0;
+      background: var(--panel);
+      color: var(--fg);
+      outline: none;
+      font-family: var(--mono);
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+    input[type="search"]::placeholder{
+      color: var(--muted);
+      opacity: .9;
+    }
+    input[type="search"]:focus, select:focus{
+      border-color: var(--fg);
+    }
+    select{
+      width: 160px;
+      cursor: pointer;
+    }
+
+    .count{
+      padding: 12px 12px;
+      border: 2px solid var(--stroke2);
+      background: var(--panel);
+      border-radius: 0;
+      text-transform: uppercase;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: right;
+      white-space: nowrap;
+      min-width: 90px;
+    }
+
+    .cards{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 10px;
+    }
+
+    .card{
+      grid-column: span 6;
+      border: 2px solid var(--stroke2);
+      background: var(--panel);
+      border-radius: 0;
+      display:flex;
+      flex-direction: column;
+      min-height: 160px;
+    }
+
+    .card-top{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: stretch;
+      border-bottom: 2px solid var(--stroke);
+      padding: 10px;
+    }
+
+    .meta{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items:center;
+    }
+
+    .id{
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .pct{
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      text-align: right;
+      min-width: 72px;
+    }
+
+    button{
+      appearance:none;
+      border: 2px solid var(--fg);
+      background: transparent;
+      color: var(--fg);
+      border-radius: 0;
+      padding: 10px 12px;
+      font-family: var(--mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      cursor: pointer;
+    }
+    button:hover{
+      background: var(--fg);
+      color: var(--bg);
+    }
+    button:active{
+      transform: translateY(1px);
+    }
+
+    .body{
+      padding: 10px;
+      display:flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1 1 auto;
+    }
+
+    blockquote{
+      margin:0;
+      padding:0;
+      font-size: 16px;
+      line-height: 1.35;
+    }
+
+    .author{
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .toast{
+      position: fixed;
+      left: calc(14px + 56px);
+      bottom: 14px;
+      padding: 10px 12px;
+      border: 2px solid var(--fg);
+      background: var(--bg);
+      color: var(--fg);
+      border-radius: 0;
+      text-transform: uppercase;
+      font-size: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 120ms linear;
+      max-width: calc(100vw - 28px - 56px);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      z-index: 5;
+    }
+    .toast.show{ opacity: 1; }
+
+    @media (max-width: 980px){
+      .card{ grid-column: span 12; }
+      .bar{ grid-template-columns: 1fr; }
+      select{ width: 100%; }
+      .count{ text-align: left; }
+      .wrap{ padding-left: calc(10px + 56px); }
+      .toast{ left: calc(10px + 56px); bottom: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="rail" aria-label="Controls">
+    <button class="rail-btn" type="button" id="menuBtn" aria-label="Menu">
+      <div class="rail-glyph"><span></span></div>
+    </button>
+  </aside>
+
+  <main class="wrap">
+    <div class="bar">
+      <input id="q" type="search" placeholder="SEARCH" autocomplete="off" />
+      <select id="mode" aria-label="Search mode">
+        <option value="match">MATCH</option>
+        <option value="percent">PERCENT</option>
+      </select>
+      <div class="count"><span id="count">0</span></div>
+    </div>
+
+    <section class="cards" id="cards" aria-label="Quotes"></section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">COPIED</div>
+
+  <script>
+    const QUOTES = [
+      { id: "Q-001", text: "The only thing we have to fear is fear itself.", author: "Franklin D. Roosevelt" },
+      { id: "Q-002", text: "I think, therefore I am.", author: "René Descartes" },
+      { id: "Q-003", text: "To be, or not to be, that is the question.", author: "William Shakespeare" },
+      { id: "Q-004", text: "That's one small step for man, one giant leap for mankind.", author: "Neil Armstrong" },
+      { id: "Q-005", text: "In the middle of difficulty lies opportunity.", author: "Albert Einstein" },
+      { id: "Q-006", text: "The unexamined life is not worth living.", author: "Socrates" },
+      { id: "Q-007", text: "Be the change that you wish to see in the world.", author: "Mahatma Gandhi" },
+      { id: "Q-008", text: "If you judge people, you have no time to love them.", author: "Mother Teresa" },
+      { id: "Q-009", text: "Not everything that can be counted counts, and not everything that counts can be counted.", author: "William Bruce Cameron" },
+      { id: "Q-010", text: "The journey of a thousand miles begins with one step.", author: "Lao Tzu" },
+      { id: "Q-011", text: "It always seems impossible until it's done.", author: "Nelson Mandela" },
+      { id: "Q-012", text: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", author: "Aristotle (attributed)" }
+    ];
+
+    const elCards = document.getElementById("cards");
+    const elQ = document.getElementById("q");
+    const elCount = document.getElementById("count");
+    const elMode = document.getElementById("mode");
+    const toast = document.getElementById("toast");
+    let toastTimer = null;
+
+    function showToast(){
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 900);
+    }
+
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function normalize(str){
+      return String(str)
+        .toLowerCase()
+        .replace(/['’]/g, "")
+        .replace(/[^a-z0-9\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function tokens(str){
+      const n = normalize(str);
+      return n ? n.split(" ") : [];
+    }
+
+    function uniqueInOrder(arr){
+      const seen = new Set();
+      const out = [];
+      for (const x of arr){
+        if (!seen.has(x)){
+          seen.add(x);
+          out.push(x);
+        }
+      }
+      return out;
+    }
+
+    function bigramCount(queryTokens, quoteTokens){
+      if (queryTokens.length < 2) return 0;
+      let count = 0;
+      for (let i = 0; i < queryTokens.length - 1; i++){
+        const a = queryTokens[i], b = queryTokens[i+1];
+        for (let j = 0; j < quoteTokens.length - 1; j++){
+          if (quoteTokens[j] === a && quoteTokens[j+1] === b){
+            count++;
+            break;
+          }
+        }
+      }
+      return count;
+    }
+
+    function percentMatch(query, quoteText, quoteAuthor){
+      const q = uniqueInOrder(tokens(query));
+      if (q.length === 0) return 0;
+
+      const quoteTok = tokens(quoteText + " " + quoteAuthor);
+      const quoteSet = new Set(quoteTok);
+
+      let exact = 0;
+      let partial = 0;
+
+      for (const qt of q){
+        if (quoteSet.has(qt)){
+          exact++;
+          continue;
+        }
+        if (qt.length >= 3){
+          for (const wt of quoteSet){
+            if (wt.includes(qt) || qt.includes(wt)){
+              partial++;
+              break;
+            }
+          }
+        }
+      }
+
+      const qLen = q.length;
+      const coverage = (exact + 0.6 * partial) / qLen;
+
+      const bigramsTotal = Math.max(1, qLen - 1);
+      const bigramsHit = bigramCount(q, quoteTok);
+      const adjacency = bigramsHit / bigramsTotal;
+
+      const score = Math.max(0, Math.min(1, 0.80 * coverage + 0.20 * adjacency));
+      return Math.round(score * 100);
+    }
+
+    function cardMarkup(q, pct){
+      const hay = normalize(q.text + " " + q.author + " " + q.id);
+      const pctText = (typeof pct === "number") ? (String(pct).padStart(3, " ") + "%") : "";
+      return `
+        <article class="card" data-hay="${escapeHtml(hay)}">
+          <div class="card-top">
+            <div class="meta">
+              <div class="id">${escapeHtml(q.id)}</div>
+              <div class="pct">${escapeHtml(pctText)}</div>
+            </div>
+            <button type="button" data-copy="${escapeHtml(q.text)}">COPY</button>
+          </div>
+          <div class="body">
+            <blockquote>${escapeHtml(q.text)}</blockquote>
+            <div class="author">${escapeHtml(q.author)}</div>
+          </div>
+        </article>
+      `;
+    }
+
+    async function copyText(btn, text){
+      try{
+        await navigator.clipboard.writeText(text);
+      }catch{
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      btn.textContent = "COPIED";
+      showToast();
+      setTimeout(() => (btn.textContent = "COPY"), 700);
+    }
+
+    function bind(){
+      elCards.querySelectorAll("button[data-copy]").forEach(btn => {
+        btn.addEventListener("click", () => copyText(btn, btn.getAttribute("data-copy")));
+      });
+    }
+
+    function render(listWithPct){
+      elCards.innerHTML = listWithPct.map(({q, pct}) => cardMarkup(q, pct)).join("");
+      bind();
+    }
+
+    function applyMatchFilter(){
+      const needle = normalize(elQ.value);
+      const cards = Array.from(elCards.children);
+      let shown = 0;
+
+      cards.forEach(card => {
+        const hay = card.getAttribute("data-hay") || "";
+        const ok = needle === "" || hay.includes(needle);
+        card.style.display = ok ? "" : "none";
+        if (ok) shown++;
+      });
+
+      elCount.textContent = String(shown);
+    }
+
+    function applyPercentRanking(){
+      const query = elQ.value.trim();
+      const ranked = QUOTES.map(q => ({
+        q,
+        pct: percentMatch(query, q.text, q.author)
+      }))
+      .sort((a, b) => {
+        if (b.pct !== a.pct) return b.pct - a.pct;
+        return a.q.id.localeCompare(b.q.id);
+      });
+
+      render(ranked);
+      elCards.querySelectorAll(".card").forEach(card => (card.style.display = ""));
+      elCount.textContent = String(ranked.length);
+    }
+
+    function apply(){
+      const mode = elMode.value;
+      if (mode === "percent"){
+        applyPercentRanking();
+      }else{
+        render(QUOTES.map(q => ({ q, pct: null })));
+        applyMatchFilter();
+      }
+    }
+
+    elQ.addEventListener("input", apply);
+    elMode.addEventListener("change", apply);
+    apply();
+
+    // Concise menu.html injection + rail binding
+    fetch("menu.html")
+      .then(r => r.text())
+      .then(html => {
+        const doc = new DOMParser().parseFromString(html, "text/html");
+
+        doc.querySelectorAll("style").forEach(st => {
+          const s = document.createElement("style");
+          s.textContent = st.textContent;
+          document.head.appendChild(s);
+        });
+
+        const overlay = doc.getElementById("pcbOverlay");
+        if (overlay) document.body.appendChild(overlay);
+
+        doc.querySelectorAll("script").forEach(sc => {
+          const s = document.createElement("script");
+          s.textContent = sc.textContent;
+          document.body.appendChild(s);
+        });
+
+        document.getElementById("menuBtn").addEventListener("click", () => {
+          if (window.PCBMenu) window.PCBMenu.toggle();
+        });
+      });
+  </script>
+</body>
+</html>
