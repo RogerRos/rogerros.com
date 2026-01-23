@@ -52,6 +52,16 @@
       text-transform: uppercase;
       text-align: center;
       line-height: 1.1;
+      cursor: pointer;
+      transition: opacity 0.15s ease;
+    }
+
+    .main-text:hover {
+      opacity: 0.7;
+    }
+
+    .main-text:active {
+      opacity: 0.5;
     }
 
     .main-text .key {
@@ -94,6 +104,25 @@
       letter-spacing: 2px;
       color: var(--muted);
       text-transform: lowercase;
+    }
+
+    .click-btn {
+      margin-top: 30px;
+      padding: 14px 24px;
+      border: 2px solid var(--muted);
+      background: transparent;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: lowercase;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .click-btn:hover {
+      border-color: var(--fg);
+      color: var(--fg);
     }
 
     /* ═══════════════════════════════════════════════════════ */
@@ -310,9 +339,10 @@
 <body>
   <!-- Main page content -->
   <div class="container">
-    <div class="main-text">
+    <div class="main-text" id="mainText">
       Press <span class="key">M</span> to open menu
     </div>
+    <button class="click-btn" id="clickBtn">or click here</button>
   </div>
   <button class="logout-btn" id="logoutBtn">Logout</button>
   <div class="footer">rogerros.com</div>
@@ -352,9 +382,15 @@
       }
 
       // Logout button
-      document.getElementById('logoutBtn').addEventListener('click', () => {
+      document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
         clearSession();
         window.location.replace('index.html');
+      });
+
+      // Click button opens menu
+      document.getElementById('clickBtn').addEventListener('click', () => {
+        if (window.PCBMenu) window.PCBMenu.open();
       });
 
       // ═══════════════════════════════════════════════════════
