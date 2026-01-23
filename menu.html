@@ -1,334 +1,714 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>MENU</title>
   <style>
-    :root{
-      --bg:#0b0b0b;
-      --fg:#e6e6e6;
-      --muted:#bdbdbd;
-      --stroke:#2a2a2a;
-      --stroke2:#3a3a3a;
-      --panel:#141414;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --blur: 6px;
+    :root {
+      --bg: #0b0b0b;
+      --fg: #e6e6e6;
+      --muted: #888;
+      --stroke: #2a2a2a;
+      --stroke2: #3a3a3a;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
 
-    *{ box-sizing:border-box; }
-    html, body{ height:100%; }
-    body{ margin:0; font-family: var(--mono); }
+    * { box-sizing: border-box; }
 
-    .pcb-overlay{
+    body.menu-open { overflow: hidden; }
+
+    .menu-overlay {
       position: fixed;
       inset: 0;
       z-index: 9999;
       display: none;
-      place-items: center;
-      background: rgba(0,0,0,.18);
-      backdrop-filter: blur(var(--blur));
-    }
-    .pcb-overlay.is-open{ display:grid; }
-
-    .pcb-panel{
-      width: calc(100vw - 28px);
-      height: calc(100vh - 28px);
-      border: 2px solid var(--stroke2);
-      background: rgba(0,0,0,0);
-      border-radius: 0;
-      position: relative;
-      overflow: hidden;
+      background: rgba(11, 11, 11, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      font-family: var(--mono);
+      color: var(--fg);
     }
 
-    .pcb-panel::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      opacity:.22;
+    .menu-overlay.is-open { display: block; }
+
+    .menu-grid {
+      position: absolute;
+      inset: 0;
+      opacity: 0.22;
       background-image:
         linear-gradient(to right, rgba(230,230,230,.07) 1px, transparent 1px),
         linear-gradient(to bottom, rgba(230,230,230,.07) 1px, transparent 1px);
       background-size: 56px 56px;
-      pointer-events:none;
-      z-index: 0;
+      pointer-events: none;
     }
 
-    .pcb-panel svg{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      pointer-events:none;
+    .menu-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
       z-index: 1;
     }
-    path.base{
-      fill:none;
+
+    .path-base {
+      fill: none;
       stroke: rgba(230,230,230,.12);
       stroke-width: 2;
-      shape-rendering: crispEdges;
+      transition: opacity 0.3s ease;
     }
-    path.active{
-      fill:none;
-      stroke: rgba(230,230,230,.32);
+
+    .path-active {
+      fill: none;
+      stroke: rgba(230,230,230,.4);
       stroke-width: 2;
-      shape-rendering: crispEdges;
-      stroke-dasharray: 1400;
-      stroke-dashoffset: 1400;
-      opacity: 0;
+      stroke-dasharray: 2000;
+      stroke-dashoffset: 2000;
     }
-    path.active.on{
+
+    .path-active.drawing {
+      animation: drawPath 520ms ease forwards;
+    }
+
+    .path-active.highlight {
+      stroke-dashoffset: 0;
       opacity: 1;
-      animation: dash 520ms linear forwards;
-    }
-    @keyframes dash { to { stroke-dashoffset: 0; } }
-
-    .close{
-      position:absolute;
-      right: 10px;
-      top: 10px;
-      border: 2px solid var(--fg);
-      background: rgba(20,20,20,.55);
-      color: var(--fg);
-      border-radius: 0;
-      width: 44px;
-      height: 44px;
-      display:grid;
-      place-items:center;
-      cursor:pointer;
-      font-family: var(--mono);
-      font-size: 14px;
-      line-height: 1;
-      z-index: 4;
-    }
-    .close:hover{
-      background: rgba(230,230,230,.92);
-      color: #0b0b0b;
     }
 
-    .node{
-      position:absolute;
+    @keyframes drawPath {
+      to { stroke-dashoffset: 0; }
+    }
+
+    .menu-node {
+      position: absolute;
       transform: translate(-50%, -50%);
-      width: min(180px, 22vw);
+      min-width: 150px;
       height: 54px;
       border: 2px solid var(--fg);
-      background: rgba(20,20,20,.92);
-      border-radius: 0;
-      display:grid;
+      background: rgba(20,20,20,.95);
+      color: var(--fg);
+      display: grid;
       grid-template-columns: 1fr auto;
-      align-items:center;
+      align-items: center;
       gap: 10px;
-      padding: 0 10px;
+      padding: 0 14px;
       cursor: pointer;
-      user-select:none;
+      user-select: none;
       text-transform: uppercase;
-      letter-spacing: .4px;
+      letter-spacing: 0.5px;
       font-size: 12px;
       z-index: 3;
-      overflow:hidden;
+      opacity: 0;
+      pointer-events: none;
+      transition: 
+        left 0.5s cubic-bezier(0.25, 0.1, 0.25, 1),
+        top 0.5s cubic-bezier(0.25, 0.1, 0.25, 1),
+        opacity 0.35s ease,
+        background 0.15s ease,
+        color 0.15s ease;
     }
-    .node::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background: rgba(20,20,20,.92);
-      z-index: 0;
-    }
-    .node > *{ position:relative; z-index: 1; }
 
-    .node:hover{
-      background: rgba(230,230,230,.92);
-      color: #0b0b0b;
+    .menu-node.visible {
+      opacity: 1;
+      pointer-events: auto;
     }
-    .node:hover::before{ background: rgba(230,230,230,.92); }
 
-    .node:active{
+    .menu-node.moving {
+      z-index: 10;
+      transition: 
+        left 0.55s cubic-bezier(0.25, 0.1, 0.25, 1),
+        top 0.55s cubic-bezier(0.25, 0.1, 0.25, 1),
+        opacity 0.35s ease;
+    }
+
+    .menu-node.fading {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .menu-node:hover {
+      background: rgba(230,230,230,.95);
+      color: var(--bg);
+    }
+
+    .menu-node:active {
       transform: translate(-50%, -50%) translateY(1px);
     }
 
-    .node .key{
-      color: var(--muted);
-      border: 2px solid var(--stroke2);
+    .menu-node .label { white-space: nowrap; }
+
+    .menu-node .key {
       padding: 4px 8px;
-      border-radius: 0;
-      font-size: 11px;
-      background: rgba(0,0,0,.35);
-      white-space: nowrap;
+      border: 2px solid var(--stroke2);
+      font-size: 10px;
+      color: var(--muted);
+      background: rgba(0,0,0,.4);
     }
-    .node:hover .key{
-      color:#0b0b0b;
-      border-color:#0b0b0b;
+
+    .menu-node:hover .key {
+      border-color: var(--bg);
+      color: var(--bg);
       background: transparent;
     }
 
-    @media (max-width: 980px){
-      .pcb-panel{ width: calc(100vw - 20px); height: calc(100vh - 20px); }
-      .node{ width: min(220px, 62vw); }
+    .menu-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 44px;
+      height: 44px;
+      border: 2px solid var(--fg);
+      background: rgba(20,20,20,.95);
+      color: var(--fg);
+      font-family: var(--mono);
+      font-size: 16px;
+      cursor: pointer;
+      z-index: 100;
+      display: grid;
+      place-items: center;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .menu-close:hover {
+      background: rgba(230,230,230,.95);
+      color: var(--bg);
+    }
+
+    .menu-back {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 14px 18px;
+      border: 2px solid var(--stroke2);
+      background: rgba(20,20,20,.9);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s, border-color 0.15s, color 0.15s;
+    }
+
+    .menu-back.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .menu-back:hover {
+      border-color: var(--fg);
+      color: var(--fg);
+    }
+
+    .menu-breadcrumb {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: var(--muted);
+      text-transform: uppercase;
+      z-index: 100;
+    }
+
+    .menu-hint {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: var(--stroke2);
+      text-transform: uppercase;
+      z-index: 100;
     }
   </style>
 </head>
 <body>
-  <div class="pcb-overlay" id="pcbOverlay" aria-hidden="true">
-    <div class="pcb-panel" role="dialog" aria-modal="true" aria-label="Navigation">
-      <button class="close" type="button" id="pcbClose" aria-label="Close">X</button>
-
-      <svg viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
-        <path class="base" d="M 140 140 L 420 140 Q 460 140 460 180 L 460 280" />
-        <path class="base" d="M 460 280 L 860 280 Q 900 280 900 240 L 900 140" />
-        <path class="base" d="M 460 280 L 460 410 Q 460 440 500 440 L 860 440" />
-        <path class="base" d="M 460 280 L 460 520 Q 460 560 420 560 L 140 560" />
-
-        <path class="active" id="t-home-hub" d="M 140 140 L 420 140 Q 460 140 460 180 L 460 280" />
-        <path class="active" id="t-hub-home" d="M 460 280 L 460 180 Q 460 140 420 140 L 140 140" />
-        <path class="active" id="t-hub-tools" d="M 460 280 L 860 280 Q 900 280 900 240 L 900 140" />
-        <path class="active" id="t-tools-hub" d="M 900 140 L 900 240 Q 900 280 860 280 L 460 280" />
-        <path class="active" id="t-hub-about" d="M 460 280 L 460 410 Q 460 440 500 440 L 860 440" />
-        <path class="active" id="t-about-hub" d="M 860 440 L 500 440 Q 460 440 460 410 L 460 280" />
-        <path class="active" id="t-hub-docs" d="M 460 280 L 460 520 Q 460 560 420 560 L 140 560" />
-        <path class="active" id="t-docs-hub" d="M 140 560 L 420 560 Q 460 560 460 520 L 460 280" />
-      </svg>
-
-      <!-- Home -> cube.html -->
-      <div class="node" id="n-home" style="left: 14%; top: 23%;" data-href="cube.html">
-        <div>Cube</div><div class="key">H</div>
-      </div>
-
-      <!-- Hub -> index.html -->
-      <div class="node" id="n-hub" style="left: 46%; top: 46%;" data-href="index.html">
-        <div>Home</div><div class="key">Enter</div>
-      </div>
-
-      <!-- Tools -> calculator.html -->
-      <div class="node" id="n-tools" style="left: 90%; top: 23%;" data-href="calculator.html">
-        <div>Calculator</div><div class="key">T</div>
-      </div>
-
-      <!-- About -> music.html -->
-      <div class="node" id="n-about" style="left: 86%; top: 73%;" data-href="music.html">
-        <div>Music</div><div class="key">A</div>
-      </div>
-
-      <!-- Docs (kept as-is; change if you want it to go somewhere) -->
-      <div class="node" id="n-docs" style="left: 14%; top: 93%;" data-href="docs.html">
-        <div>Non Functional</div><div class="key">D</div>
-      </div>
-    </div>
+  <div class="menu-overlay" id="menuOverlay">
+    <div class="menu-grid"></div>
+    <svg class="menu-svg" id="menuSvg"></svg>
+    <button class="menu-close" id="menuClose">✕</button>
+    <button class="menu-back" id="menuBack">← Back</button>
+    <div class="menu-breadcrumb" id="menuBreadcrumb"></div>
+    <div class="menu-hint">Esc to close</div>
   </div>
 
   <script>
-    (function(){
-      const overlay = document.getElementById("pcbOverlay");
-      const closeBtn = document.getElementById("pcbClose");
+    (function() {
+      'use strict';
 
-      const tracksByNode = {
-        "n-home": ["t-home-hub"],
-        "n-hub":  ["t-hub-home","t-hub-tools","t-hub-about","t-hub-docs"],
-        "n-tools":["t-tools-hub"],
-        "n-about":["t-about-hub"],
-        "n-docs": ["t-docs-hub"]
+      // ═══════════════════════════════════════════════════════
+      // MENU TREE
+      // ═══════════════════════════════════════════════════════
+      const TREE = {
+        id: 'start',
+        label: 'START/',
+        key: 'Enter',
+        href: 'startpage.html',
+        children: [
+          {
+            id: 'info',
+            label: 'INFO/',
+            key: 'I',
+            children: [
+              { id: 'quotes', label: 'QUOTES', key: 'Q', href: 'quotes.html' },
+              { id: 'contact', label: 'CONTACT', key: 'C', href: 'contact.html' },
+              { id: 'bio', label: 'BIO', key: 'B', href: 'bio.html' },
+              { id: 'notes', label: 'NOTES', key: 'N', href: 'notes.html' }
+            ]
+          },
+          {
+            id: 'tools',
+            label: 'TOOLS/',
+            key: 'T',
+            children: [
+              { id: 'calc', label: 'CALCULATOR', key: 'C', href: 'calculator.html' }
+            ]
+          },
+          {
+            id: 'files',
+            label: 'FILES/',
+            key: 'F',
+            children: [
+              { id: 'images', label: 'IMAGES', key: 'I', href: 'images.html' },
+              { id: 'audio', label: 'AUDIO', key: 'A', href: 'audio.html' },
+              { id: 'backup', label: 'BACKUP', key: 'B', href: 'backup.html' }
+            ]
+          },
+          {
+            id: 'status',
+            label: 'STATUS/',
+            key: 'S',
+            children: [
+              { id: 'aistatus', label: 'AISTATUS', key: 'A', href: 'aistatus.html' }
+            ]
+          },
+          { id: 'startpage', label: 'STARTPAGE/', key: 'H', href: 'startpage.html' }
+        ]
       };
 
-      function isTypingContext(){
-        const el = document.activeElement;
-        if (!el) return false;
-        const tag = (el.tagName || "").toLowerCase();
-        if (tag === "input" || tag === "textarea" || tag === "select") return true;
-        if (el.isContentEditable) return true;
-        return false;
+      // ═══════════════════════════════════════════════════════
+      // STATE
+      // ═══════════════════════════════════════════════════════
+      let currentNode = TREE;
+      let history = [];
+      let nodeEls = [];
+      let pathEls = [];
+      let isAnimating = false;
+      let isOpen = false;
+
+      // ═══════════════════════════════════════════════════════
+      // DOM
+      // ═══════════════════════════════════════════════════════
+      const overlay = document.getElementById('menuOverlay');
+      const svg = document.getElementById('menuSvg');
+      const closeBtn = document.getElementById('menuClose');
+      const backBtn = document.getElementById('menuBack');
+      const breadcrumb = document.getElementById('menuBreadcrumb');
+
+      // ═══════════════════════════════════════════════════════
+      // LAYOUT
+      // ═══════════════════════════════════════════════════════
+      function getCenter() {
+        return { x: window.innerWidth / 2, y: window.innerHeight / 2 };
       }
 
-      function setOpen(open){
-        overlay.classList.toggle("is-open", open);
-        overlay.setAttribute("aria-hidden", open ? "false" : "true");
-        document.body.classList.toggle("menu-open", open);
-        if (open) closeBtn.focus();
+      function getChildPositions(count) {
+        const c = getCenter();
+        const positions = [];
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+
+        const layouts = {
+          1: [{ x: 0, y: -0.30 }],
+          2: [{ x: -0.30, y: -0.15 }, { x: 0.30, y: -0.15 }],
+          3: [{ x: -0.32, y: -0.22 }, { x: 0.32, y: -0.22 }, { x: 0, y: 0.30 }],
+          4: [{ x: -0.32, y: -0.23 }, { x: 0.32, y: -0.23 }, { x: 0.32, y: 0.27 }, { x: -0.32, y: 0.27 }],
+          5: [{ x: -0.32, y: -0.23 }, { x: 0.32, y: -0.23 }, { x: 0.36, y: 0.20 }, { x: 0, y: 0.35 }, { x: -0.36, y: 0.20 }]
+        };
+
+        const layout = layouts[Math.min(count, 5)] || layouts[5];
+
+        for (let i = 0; i < count; i++) {
+          const l = layout[i % layout.length];
+          positions.push({
+            x: c.x + l.x * w,
+            y: c.y + l.y * h
+          });
+        }
+
+        return positions;
       }
 
-      function toggle(){
-        setOpen(!overlay.classList.contains("is-open"));
+      // ═══════════════════════════════════════════════════════
+      // PATH GENERATION
+      // ═══════════════════════════════════════════════════════
+      function generatePath(from, to) {
+        const r = 20;
+        let d = `M ${from.x} ${from.y}`;
+
+        const dx = to.x - from.x;
+        const dy = to.y - from.y;
+        const absDx = Math.abs(dx);
+        const absDy = Math.abs(dy);
+
+        if (absDx < 5 && absDy < 5) {
+          return d;
+        }
+
+        if (absDx > absDy) {
+          const midX = from.x + dx * 0.5;
+          const signX = dx > 0 ? 1 : -1;
+          const signY = dy > 0 ? 1 : -1;
+
+          if (absDy < r * 2) {
+            d += ` L ${to.x} ${to.y}`;
+          } else {
+            d += ` L ${midX - r * signX} ${from.y}`;
+            d += ` Q ${midX} ${from.y} ${midX} ${from.y + r * signY}`;
+            d += ` L ${midX} ${to.y - r * signY}`;
+            d += ` Q ${midX} ${to.y} ${midX + r * signX} ${to.y}`;
+            d += ` L ${to.x} ${to.y}`;
+          }
+        } else {
+          const midY = from.y + dy * 0.5;
+          const signX = dx > 0 ? 1 : -1;
+          const signY = dy > 0 ? 1 : -1;
+
+          if (absDx < r * 2) {
+            d += ` L ${to.x} ${to.y}`;
+          } else {
+            d += ` L ${from.x} ${midY - r * signY}`;
+            d += ` Q ${from.x} ${midY} ${from.x + r * signX} ${midY}`;
+            d += ` L ${to.x - r * signX} ${midY}`;
+            d += ` Q ${to.x} ${midY} ${to.x} ${midY + r * signY}`;
+            d += ` L ${to.x} ${to.y}`;
+          }
+        }
+
+        return d;
       }
 
-      function clearTracks(){
-        overlay.querySelectorAll("path.active").forEach(p => p.classList.remove("on"));
+      // ═══════════════════════════════════════════════════════
+      // CREATE ELEMENTS
+      // ═══════════════════════════════════════════════════════
+      function createNode(data, x, y, isCenter = false) {
+        const el = document.createElement('div');
+        el.className = 'menu-node' + (isCenter ? ' is-center' : '');
+        el.dataset.id = data.id;
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+
+        const label = document.createElement('span');
+        label.className = 'label';
+        label.textContent = data.label;
+        el.appendChild(label);
+
+        if (data.key) {
+          const key = document.createElement('span');
+          key.className = 'key';
+          key.textContent = data.key;
+          el.appendChild(key);
+        }
+
+        el.addEventListener('click', () => handleClick(data));
+        el.addEventListener('mouseenter', () => highlightPath(data.id));
+        el.addEventListener('mouseleave', unhighlightPaths);
+
+        overlay.appendChild(el);
+        return el;
       }
 
-      function pulseTracks(nodeId){
-        clearTracks();
-        const ids = tracksByNode[nodeId] || [];
-        ids.forEach(id => {
-          const p = document.getElementById(id);
-          if (!p) return;
-          p.classList.remove("on");
-          void p.getBoundingClientRect();
-          p.classList.add("on");
+      function createPath(from, to, id) {
+        const pathD = generatePath(from, to);
+
+        const base = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        base.setAttribute('d', pathD);
+        base.classList.add('path-base');
+        svg.appendChild(base);
+
+        const active = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        active.setAttribute('d', pathD);
+        active.classList.add('path-active');
+        active.dataset.target = id;
+        svg.appendChild(active);
+
+        return { base, active };
+      }
+
+      // ═══════════════════════════════════════════════════════
+      // HIGHLIGHT
+      // ═══════════════════════════════════════════════════════
+      function highlightPath(id) {
+        pathEls.forEach(p => {
+          if (p.active.dataset.target === id) {
+            p.active.classList.add('highlight');
+          }
         });
       }
 
-      function go(href){
-        if (!href) return;
-        window.location.href = href;
+      function unhighlightPaths() {
+        pathEls.forEach(p => {
+          p.active.classList.remove('highlight');
+        });
       }
 
-      function navigate(node){
-        const href = node.getAttribute("data-href");
-        setOpen(false);
-        if (href) go(href);
+      // ═══════════════════════════════════════════════════════
+      // RENDER
+      // ═══════════════════════════════════════════════════════
+      function clearAll() {
+        return new Promise(resolve => {
+          if (nodeEls.length === 0 && pathEls.length === 0) {
+            resolve();
+            return;
+          }
+
+          nodeEls.forEach(n => n.el.classList.add('fading'));
+          pathEls.forEach(p => {
+            p.base.style.opacity = '0';
+            p.active.style.opacity = '0';
+          });
+
+          setTimeout(() => {
+            nodeEls.forEach(n => n.el.remove());
+            pathEls.forEach(p => {
+              p.base.remove();
+              p.active.remove();
+            });
+            nodeEls = [];
+            pathEls = [];
+            resolve();
+          }, 350);
+        });
       }
 
-      overlay.querySelectorAll(".node").forEach(node => {
-        node.addEventListener("mouseenter", () => pulseTracks(node.id));
-        node.addEventListener("mouseleave", clearTracks);
-        node.addEventListener("click", () => navigate(node));
+      function render() {
+        const c = getCenter();
+
+        const centerEl = createNode(currentNode, c.x, c.y, true);
+        nodeEls.push({ data: currentNode, el: centerEl });
+
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            centerEl.classList.add('visible');
+          });
+        });
+
+        if (currentNode.children && currentNode.children.length > 0) {
+          const positions = getChildPositions(currentNode.children.length);
+
+          setTimeout(() => {
+            currentNode.children.forEach((child, i) => {
+              setTimeout(() => {
+                const pos = positions[i];
+                const path = createPath(c, pos, child.id);
+                pathEls.push(path);
+
+                requestAnimationFrame(() => {
+                  path.active.classList.add('drawing');
+                });
+
+                setTimeout(() => {
+                  const el = createNode(child, pos.x, pos.y);
+                  nodeEls.push({ data: child, el });
+
+                  requestAnimationFrame(() => {
+                    el.classList.add('visible');
+                  });
+                }, 250);
+              }, i * 100);
+            });
+          }, 200);
+        }
+
+        backBtn.classList.toggle('visible', history.length > 0);
+        updateBreadcrumb();
+      }
+
+      function updateBreadcrumb() {
+        const path = history.map(n => n.label.replace('/', '')).concat([currentNode.label.replace('/', '')]);
+        breadcrumb.textContent = path.join(' → ');
+      }
+
+      // ═══════════════════════════════════════════════════════
+      // NAVIGATION
+      // ═══════════════════════════════════════════════════════
+      function navigateInto(node) {
+        if (isAnimating) return;
+        isAnimating = true;
+
+        const c = getCenter();
+        const clickedEl = nodeEls.find(n => n.data.id === node.id)?.el;
+
+        nodeEls.forEach(n => {
+          if (n.data.id !== node.id) {
+            n.el.classList.add('fading');
+          }
+        });
+
+        pathEls.forEach(p => {
+          p.base.style.opacity = '0';
+          p.active.style.opacity = '0';
+        });
+
+        if (clickedEl) {
+          clickedEl.classList.add('moving');
+          clickedEl.style.left = c.x + 'px';
+          clickedEl.style.top = c.y + 'px';
+        }
+
+        setTimeout(() => {
+          nodeEls.forEach(n => n.el.remove());
+          pathEls.forEach(p => {
+            p.base.remove();
+            p.active.remove();
+          });
+          nodeEls = [];
+          pathEls = [];
+
+          history.push(currentNode);
+          currentNode = node;
+
+          render();
+
+          setTimeout(() => {
+            isAnimating = false;
+          }, 100);
+        }, 550);
+      }
+
+      function navigateBack() {
+        if (isAnimating || history.length === 0) return;
+        isAnimating = true;
+
+        clearAll().then(() => {
+          currentNode = history.pop();
+          render();
+          setTimeout(() => {
+            isAnimating = false;
+          }, 100);
+        });
+      }
+
+      function handleClick(node) {
+        if (isAnimating) return;
+        
+        // Clicking center node with href navigates
+        if (node === currentNode && node.href) {
+          closeMenu();
+          window.location.href = node.href;
+          return;
+        }
+        
+        if (node === currentNode) return;
+
+        if (node.children) {
+          navigateInto(node);
+        } else if (node.href) {
+          closeMenu();
+          window.location.href = node.href;
+        }
+      }
+
+      // ═══════════════════════════════════════════════════════
+      // OPEN/CLOSE
+      // ═══════════════════════════════════════════════════════
+      function openMenu() {
+        if (isOpen) return;
+        isOpen = true;
+        currentNode = TREE;
+        history = [];
+        overlay.classList.add('is-open');
+        document.body.classList.add('menu-open');
+        render();
+      }
+
+      function closeMenu() {
+        if (!isOpen) return;
+        isOpen = false;
+        overlay.classList.remove('is-open');
+        document.body.classList.remove('menu-open');
+        clearAll();
+      }
+
+      function toggleMenu() {
+        isOpen ? closeMenu() : openMenu();
+      }
+
+      // ═══════════════════════════════════════════════════════
+      // EVENTS
+      // ═══════════════════════════════════════════════════════
+      closeBtn.addEventListener('click', closeMenu);
+      backBtn.addEventListener('click', navigateBack);
+
+      overlay.addEventListener('mousedown', (e) => {
+        if (e.target === overlay) closeMenu();
       });
 
-      overlay.addEventListener("mousedown", (e) => {
-        if (e.target === overlay) setOpen(false);
-      });
+      function isTyping() {
+        const el = document.activeElement;
+        if (!el) return false;
+        const tag = el.tagName.toLowerCase();
+        return tag === 'input' || tag === 'textarea' || tag === 'select' || el.isContentEditable;
+      }
 
-      closeBtn.addEventListener("click", () => setOpen(false));
+      window.addEventListener('keydown', (e) => {
+        const key = e.key.toLowerCase();
 
-      window.addEventListener("keydown", (e) => {
-        const key = (e.key || "").toLowerCase();
-
-        // Open/close menu with "m" when not typing
-        if (!e.ctrlKey && !e.metaKey && !e.altKey && key === "m" && !isTypingContext()){
+        if (key === 'm' && !e.ctrlKey && !e.metaKey && !e.altKey && !isTyping()) {
           e.preventDefault();
-          setOpen(!overlay.classList.contains("is-open"));
+          toggleMenu();
           return;
         }
 
-        // If menu not open, ignore nav keys
-        if (!overlay.classList.contains("is-open")) return;
+        if (!isOpen) return;
 
-        if (key === "escape"){
+        if (key === 'escape') {
           e.preventDefault();
-          setOpen(false);
+          closeMenu();
           return;
         }
 
-        // Keyboard routes (while menu is open)
-        const routes = {
-          "h": "cube.html",
-          "t": "calculator.html",
-          "a": "music.html",
-          "d": "docs.html"
-        };
-
-        if (e.key === "Enter"){
+        if (key === 'backspace') {
           e.preventDefault();
-          go("index.html");   // Hub
-          setOpen(false);
+          navigateBack();
           return;
         }
 
-        if (key in routes){
+        if (isAnimating) return;
+
+        // Enter key goes to startpage
+        if (e.key === 'Enter') {
           e.preventDefault();
-          go(routes[key]);
-          setOpen(false);
+          closeMenu();
+          window.location.href = 'startpage.html';
+          return;
+        }
+
+        if (currentNode.children) {
+          const match = currentNode.children.find(c => c.key && c.key.toLowerCase() === key);
+          if (match) {
+            e.preventDefault();
+            handleClick(match);
+          }
         }
       });
 
-      window.PCBMenu = { open: () => setOpen(true), close: () => setOpen(false), toggle };
+      let resizeTimer;
+      window.addEventListener('resize', () => {
+        if (!isOpen || isAnimating) return;
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          clearAll().then(() => render());
+        }, 200);
+      });
+
+      // Global API
+      window.PCBMenu = { open: openMenu, close: closeMenu, toggle: toggleMenu };
     })();
   </script>
 </body>
