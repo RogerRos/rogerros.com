@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ACCESS</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+    :root {
+      --bg: #000;
+      --fg: #fff;
+      --muted: #444;
+      --error: #ff0033;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 320px;
+      opacity: 0;
+      animation: fadeIn 0.6s ease 0.2s forwards;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    .icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 48px;
+      border: 2px solid var(--fg);
+      position: relative;
+    }
+
+    .icon::before {
+      content: "";
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--fg);
+    }
+
+    .icon::after {
+      content: "";
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 36px;
+      height: 22px;
+      border: 2px solid var(--fg);
+      border-bottom: none;
+    }
+
+
+
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .input {
+      width: 100%;
+      padding: 16px;
+      background: transparent;
+      border: 2px solid var(--muted);
+      color: var(--fg);
+      font-family: inherit;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .input::placeholder {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: 10px;
+    }
+
+    .input:focus {
+      border-color: var(--fg);
+    }
+
+    .input[type="password"] {
+      letter-spacing: 3px;
+    }
+
+    .btn {
+      padding: 16px;
+      background: var(--fg);
+      border: none;
+      color: var(--bg);
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .btn:hover {
+      opacity: 0.85;
+    }
+
+    .btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .error {
+      padding: 12px;
+      border: 1px solid var(--error);
+      color: var(--error);
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-align: center;
+      text-transform: uppercase;
+      display: none;
+    }
+
+    .error.show {
+      display: block;
+    }
+
+    .lockout {
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: var(--error);
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .footer {
+      margin-top: 64px;
+      text-align: center;
+    }
+
+    .footer p {
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: var(--muted);
+      text-transform: uppercase;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon"></div>
+
+    <form class="form" id="form" autocomplete="off">
+      <input 
+        type="text" 
+        class="input" 
+        id="user" 
+        placeholder="Identifier"
+        autocomplete="off"
+        spellcheck="false"
+        required
+      >
+      <input 
+        type="password" 
+        class="input" 
+        id="pass" 
+        placeholder="Key"
+        autocomplete="off"
+        required
+      >
+      <div class="error" id="error">Access denied</div>
+      <div class="lockout" id="lockout"></div>
+      <button type="submit" class="btn" id="btn">Verify</button>
+    </form>
+
+    <footer class="footer">
+      <p>This interface serves as a filter<br>Not a barrier</p>
+    </footer>
+  </div>
+
+  <script>
+    (function() {
+      'use strict';
+
+      // Obfuscated destination
+      const _0x = [115,116,97,114,116,112,97,103,101,46,104,116,109,108];
+      const _d = () => String.fromCharCode(..._0x);
+
+      // Anti-tampering check
+      const _v = () => {
+        try {
+          const t = performance.now();
+          debugger;
+          return performance.now() - t > 100;
+        } catch { return false; }
+      };
+
+      const CONFIG = {
+        maxAttempts: 5,
+        lockoutMs: 120000,
+        sessionMs: 3600000,
+        prefix: '_x_'
+      };
+
+      const CREDENTIALS = {
+        '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918': 
+          '7b92f28bb6730d2f662cae6fad9f6ad6ff25f58c7417d07ecd0b01ab21599ba2',
+        '84983c60f7daadc1cb8698621f802c0d9f9a3c3c295c810748fb048115c186ec': 
+          '7d00a5f70552ef913523643f4efcd269124500569fcc7e399a99f13c49720f3b'
+      };
+
+      async function sha256(str) {
+        const data = new TextEncoder().encode(str);
+        const buffer = await crypto.subtle.digest('SHA-256', data);
+        return Array.from(new Uint8Array(buffer))
+          .map(b => b.toString(16).padStart(2, '0'))
+          .join('');
+      }
+
+      function encode(obj) {
+        return btoa(JSON.stringify(obj));
+      }
+
+      function decode(str) {
+        try {
+          return JSON.parse(atob(str));
+        } catch {
+          return null;
+        }
+      }
+
+      function get(key) {
+        const data = localStorage.getItem(CONFIG.prefix + key);
+        return data ? decode(data) : null;
+      }
+
+      function set(key, value) {
+        localStorage.setItem(CONFIG.prefix + key, encode(value));
+      }
+
+      function del(key) {
+        localStorage.removeItem(CONFIG.prefix + key);
+      }
+
+      function getAttempts() {
+        const data = get('a');
+        if (!data) return { c: 0, t: 0, l: false };
+        if (data.l && Date.now() - data.t > CONFIG.lockoutMs) {
+          del('a');
+          return { c: 0, t: 0, l: false };
+        }
+        return data;
+      }
+
+      function addAttempt() {
+        const data = getAttempts();
+        data.c++;
+        data.t = Date.now();
+        if (data.c >= CONFIG.maxAttempts) data.l = true;
+        set('a', data);
+        return data;
+      }
+
+      function isLocked() {
+        const data = getAttempts();
+        if (!data.l) return false;
+        if (Date.now() - data.t > CONFIG.lockoutMs) {
+          del('a');
+          return false;
+        }
+        return true;
+      }
+
+      function lockoutRemaining() {
+        const data = getAttempts();
+        if (!data.l) return 0;
+        return Math.max(0, Math.ceil((CONFIG.lockoutMs - (Date.now() - data.t)) / 1000));
+      }
+
+      function getFingerprint() {
+        const d = [
+          navigator.language,
+          screen.colorDepth,
+          new Date().getTimezoneOffset(),
+          navigator.hardwareConcurrency || 0,
+          screen.width + 'x' + screen.height
+        ].join('|');
+        let h = 0;
+        for (let i = 0; i < d.length; i++) {
+          h = ((h << 5) - h) + d.charCodeAt(i);
+          h |= 0;
+        }
+        return h.toString(36);
+      }
+
+      function createSession(user, hash) {
+        const session = {
+          u: user,
+          h: hash.substring(0, 16),
+          f: getFingerprint(),
+          t: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36),
+          c: Date.now(),
+          e: Date.now() + CONFIG.sessionMs
+        };
+        set('s', session);
+        del('a');
+        return session;
+      }
+
+      function validateSession() {
+        const s = get('s');
+        if (!s) return false;
+        if (Date.now() > s.e) {
+          del('s');
+          return false;
+        }
+        if (s.f !== getFingerprint()) {
+          del('s');
+          return false;
+        }
+        return s;
+      }
+
+      const form = document.getElementById('form');
+      const userInput = document.getElementById('user');
+      const passInput = document.getElementById('pass');
+      const errorEl = document.getElementById('error');
+      const lockoutEl = document.getElementById('lockout');
+      const btn = document.getElementById('btn');
+
+      function showError(msg) {
+        errorEl.textContent = msg;
+        errorEl.classList.add('show');
+      }
+
+      function hideError() {
+        errorEl.classList.remove('show');
+      }
+
+      function updateLockout() {
+        const remaining = lockoutRemaining();
+        if (remaining > 0) {
+          const m = Math.floor(remaining / 60);
+          const s = remaining % 60;
+          lockoutEl.textContent = `Locked: ${m}:${s.toString().padStart(2, '0')}`;
+          btn.disabled = true;
+          userInput.disabled = true;
+          passInput.disabled = true;
+        } else {
+          lockoutEl.textContent = '';
+          btn.disabled = false;
+          userInput.disabled = false;
+          passInput.disabled = false;
+        }
+      }
+
+      if (validateSession()) {
+        window.location.replace(_d());
+      }
+
+      if (isLocked()) {
+        updateLockout();
+        setInterval(updateLockout, 1000);
+      }
+
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        hideError();
+
+        if (isLocked()) {
+          updateLockout();
+          return;
+        }
+
+        const user = userInput.value.trim().toLowerCase();
+        const pass = passInput.value;
+
+        if (!user || !pass) {
+          showError('All fields required');
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = '...';
+
+        await new Promise(r => setTimeout(r, 250 + Math.random() * 250));
+
+        const userHash = await sha256(user);
+        const passHash = await sha256(pass);
+
+        const expectedPassHash = CREDENTIALS[userHash];
+        let valid = false;
+
+        if (expectedPassHash) {
+          valid = passHash === expectedPassHash;
+        }
+
+        if (valid) {
+          createSession(user, userHash);
+          window.location.replace(_d());
+        } else {
+          const attempts = addAttempt();
+          const remaining = CONFIG.maxAttempts - attempts.c;
+
+          if (attempts.l) {
+            showError('Too many attempts');
+            updateLockout();
+            setInterval(updateLockout, 1000);
+          } else {
+            showError(`Access denied (${remaining} left)`);
+          }
+
+          passInput.value = '';
+          btn.disabled = false;
+          btn.textContent = 'Verify';
+        }
+      });
+
+      [userInput, passInput].forEach(el => {
+        el.addEventListener('input', hideError);
+      });
+
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible' && validateSession()) {
+          window.location.replace(_d());
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
