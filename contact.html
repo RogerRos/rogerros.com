@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CONTACT</title>
+  <style>
+    :root {
+      --bg: #0b0b0b;
+      --fg: #e6e6e6;
+      --muted: #888;
+      --muted2: #bdbdbd;
+      --panel: #141414;
+      --stroke: #2a2a2a;
+      --stroke2: #3a3a3a;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--mono);
+      letter-spacing: 0.2px;
+    }
+
+    body.menu-open { overflow: hidden; }
+
+    .wrap {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 20px;
+      padding-bottom: 80px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 48px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--stroke2);
+    }
+
+    .title {
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .menu-hint {
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: var(--stroke2);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .menu-hint .key {
+      display: inline-block;
+      border: 1px solid var(--stroke2);
+      padding: 2px 6px;
+      margin-left: 4px;
+    }
+
+    .menu-hint .click-link {
+      padding: 8px 14px;
+      border: 1px solid var(--muted);
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .menu-hint .click-link:hover {
+      border-color: var(--fg);
+      color: var(--fg);
+    }
+
+    /* ═══════════════════════════════════════════════════════ */
+    /* AXIOMS */
+    /* ═══════════════════════════════════════════════════════ */
+
+    .axioms {
+      margin-bottom: 48px;
+    }
+
+    .axiom {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--stroke);
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--muted2);
+    }
+
+    .axiom:last-child {
+      border-bottom: none;
+    }
+
+    .axiom-num {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    /* ═══════════════════════════════════════════════════════ */
+    /* LINKS */
+    /* ═══════════════════════════════════════════════════════ */
+
+    .section {
+      margin-bottom: 32px;
+    }
+
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--stroke2);
+      margin-bottom: 12px;
+    }
+
+    .link-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .link-item {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      border: 2px solid var(--stroke2);
+      background: var(--panel);
+      text-decoration: none;
+      color: var(--fg);
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .link-item:hover {
+      border-color: var(--fg);
+      background: var(--stroke);
+    }
+
+    .link-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--stroke2);
+      background: var(--bg);
+    }
+
+    .link-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: var(--fg);
+    }
+
+    .link-item:hover .link-icon {
+      border-color: var(--muted);
+    }
+
+    .link-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .link-platform {
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--fg);
+    }
+
+    .link-value {
+      font-size: 11px;
+      color: var(--muted);
+      word-break: break-all;
+    }
+
+    /* Primary link */
+    .link-item.primary {
+      border-color: var(--muted);
+    }
+
+    .link-item.primary .link-icon {
+      border-color: var(--muted);
+    }
+
+    .link-item.primary .link-platform::after {
+      content: ' ●';
+      font-size: 8px;
+      vertical-align: middle;
+      margin-left: 6px;
+    }
+
+    /* ═══════════════════════════════════════════════════════ */
+    /* FOOTER NOTE */
+    /* ═══════════════════════════════════════════════════════ */
+
+    .footer-note {
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--stroke);
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.6;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    /* ═══════════════════════════════════════════════════════ */
+    /* MENU OVERLAY */
+    /* ═══════════════════════════════════════════════════════ */
+
+    .menu-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: none;
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .menu-overlay.is-open { display: block; }
+
+    .menu-grid {
+      position: absolute;
+      inset: 0;
+      opacity: 0.22;
+      background-image:
+        linear-gradient(to right, rgba(230,230,230,.07) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(230,230,230,.07) 1px, transparent 1px);
+      background-size: 56px 56px;
+      pointer-events: none;
+    }
+
+    .menu-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .path-base {
+      fill: none;
+      stroke: rgba(230,230,230,.12);
+      stroke-width: 2;
+      transition: opacity 0.3s ease;
+    }
+
+    .path-active {
+      fill: none;
+      stroke: rgba(230,230,230,.4);
+      stroke-width: 2;
+      stroke-dasharray: 2000;
+      stroke-dashoffset: 2000;
+    }
+
+    .path-active.drawing {
+      animation: drawPath 520ms ease forwards;
+    }
+
+    .path-active.highlight {
+      stroke-dashoffset: 0;
+      opacity: 1;
+    }
+
+    @keyframes drawPath {
+      to { stroke-dashoffset: 0; }
+    }
+
+    .menu-node {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      min-width: 150px;
+      height: 54px;
+      border: 2px solid var(--fg);
+      background: rgba(0,0,0,.95);
+      color: var(--fg);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 0 14px;
+      cursor: pointer;
+      user-select: none;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 12px;
+      z-index: 3;
+      opacity: 0;
+      pointer-events: none;
+      transition: 
+        left 0.5s cubic-bezier(0.25, 0.1, 0.25, 1),
+        top 0.5s cubic-bezier(0.25, 0.1, 0.25, 1),
+        opacity 0.35s ease,
+        background 0.15s ease,
+        color 0.15s ease;
+    }
+
+    .menu-node.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .menu-node.moving {
+      z-index: 10;
+      transition: 
+        left 0.55s cubic-bezier(0.25, 0.1, 0.25, 1),
+        top 0.55s cubic-bezier(0.25, 0.1, 0.25, 1),
+        opacity 0.35s ease;
+    }
+
+    .menu-node.fading {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .menu-node:hover {
+      background: rgba(230,230,230,.95);
+      color: #000;
+    }
+
+    .menu-node:active {
+      transform: translate(-50%, -50%) translateY(1px);
+    }
+
+    .menu-node .label { white-space: nowrap; }
+
+    .menu-node .key {
+      padding: 4px 8px;
+      border: 2px solid var(--stroke2);
+      font-size: 10px;
+      color: #888;
+      background: rgba(0,0,0,.4);
+    }
+
+    .menu-node:hover .key {
+      border-color: #000;
+      color: #000;
+      background: transparent;
+    }
+
+    .menu-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 44px;
+      height: 44px;
+      border: 2px solid var(--fg);
+      background: rgba(0,0,0,.95);
+      color: var(--fg);
+      font-family: var(--mono);
+      font-size: 16px;
+      cursor: pointer;
+      z-index: 100;
+      display: grid;
+      place-items: center;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .menu-close:hover {
+      background: rgba(230,230,230,.95);
+      color: #000;
+    }
+
+    .menu-back {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 14px 18px;
+      border: 2px solid var(--stroke2);
+      background: rgba(0,0,0,.9);
+      color: #888;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s, border-color 0.15s, color 0.15s;
+    }
+
+    .menu-back.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .menu-back:hover {
+      border-color: var(--fg);
+      color: var(--fg);
+    }
+
+    .menu-breadcrumb {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: #888;
+      text-transform: uppercase;
+      z-index: 100;
+    }
+
+    .menu-hint-overlay {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: var(--stroke2);
+      text-transform: uppercase;
+      z-index: 100;
+    }
+
+    @media (max-width: 500px) {
+      .axiom {
+        grid-template-columns: 20px 1fr;
+        gap: 8px;
+        font-size: 12px;
+      }
+      .link-item {
+        grid-template-columns: 40px 1fr;
+        gap: 12px;
+        padding: 12px;
+      }
+      .link-icon {
+        width: 40px;
+        height: 40px;
+      }
+      .link-icon svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="header">
+      <div class="title">Contact</div>
+      <div class="menu-hint">Press <span class="key">M</span> for menu <span class="click-link" id="menuClick">or click here</span></div>
+    </div>
+
+    <div class="axioms">
+      <div class="axiom">
+        <span class="axiom-num">01</span>
+        <span>Preferred channel: email.</span>
+      </div>
+      <div class="axiom">
+        <span class="axiom-num">02</span>
+        <span>No social media presence.</span>
+      </div>
+      <div class="axiom">
+        <span class="axiom-num">03</span>
+        <span>Phone number: not provided.</span>
+      </div>
+      <div class="axiom">
+        <span class="axiom-num">04</span>
+        <span>Optimal message format: short, direct, no formalities.</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Primary</div>
+      <div class="link-grid">
+        <a href="mailto:contact@rogerros.com" class="link-item primary">
+          <div class="link-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+            </svg>
+          </div>
+          <div class="link-content">
+            <span class="link-platform">Email</span>
+            <span class="link-value">contact@rogerros.com</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Platforms</div>
+      <div class="link-grid">
+        <a href="https://github.com/RogerRos" target="_blank" rel="noopener" class="link-item">
+          <div class="link-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+          </div>
+          <div class="link-content">
+            <span class="link-platform">GitHub</span>
+            <span class="link-value">github.com/RogerRos</span>
+          </div>
+        </a>
+        <a href="https://www.youtube.com/@roger-ros" target="_blank" rel="noopener" class="link-item">
+          <div class="link-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+            </svg>
+          </div>
+          <div class="link-content">
+            <span class="link-platform">YouTube</span>
+            <span class="link-value">youtube.com/@roger-ros</span>
+          </div>
+        </a>
+        <a href="https://open.spotify.com/artist/34fPfgEOFHcejEWS5K6lu2" target="_blank" rel="noopener" class="link-item">
+          <div class="link-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+            </svg>
+          </div>
+          <div class="link-content">
+            <span class="link-platform">Spotify</span>
+            <span class="link-value">Roger Ros</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      No Twitter / X · No Instagram · No LinkedIn · No TikTok<br>
+      If not listed → does not exist.
+    </div>
+  </main>
+
+  <!-- Menu overlay -->
+  <div class="menu-overlay" id="menuOverlay">
+    <div class="menu-grid"></div>
+    <svg class="menu-svg" id="menuSvg"></svg>
+    <button class="menu-close" id="menuClose">✕</button>
+    <button class="menu-back" id="menuBack">← Back</button>
+    <div class="menu-breadcrumb" id="menuBreadcrumb"></div>
+    <div class="menu-hint-overlay">Esc to close</div>
+  </div>
+
+  <script>
+    (function() {
+      'use strict';
+
+      const PREFIX = '_x_';
+      function getSession() {
+        try {
+          const d = localStorage.getItem(PREFIX + 's');
+          return d ? JSON.parse(atob(d)) : null;
+        } catch { return null; }
+      }
+      function clearSession() { localStorage.removeItem(PREFIX + 's'); }
+
+      const session = getSession();
+      if (!session || Date.now() > session.e) {
+        clearSession();
+        window.location.replace('index.html');
+      }
+
+      const TREE = {
+        id: 'start', label: 'START/', key: 'Enter', href: 'startpage.html',
+        children: [
+          { id: 'info', label: 'INFO/', key: 'I', children: [
+            { id: 'quotes', label: 'QUOTES', key: 'Q', href: 'quotes.html' },
+            { id: 'contact', label: 'CONTACT', key: 'C', href: 'contact.html' },
+            { id: 'bio', label: 'BIO', key: 'B', href: 'bio.html' },
+            { id: 'notes', label: 'NOTES', key: 'N', href: 'notes.html' }
+          ]},
+          { id: 'tools', label: 'TOOLS/', key: 'T', children: [
+            { id: 'calc', label: 'CALCULATOR', key: 'C', href: 'calculator.html' }
+          ]},
+          { id: 'files', label: 'FILES/', key: 'F', children: [
+            { id: 'images', label: 'IMAGES', key: 'I', href: 'images.html' },
+            { id: 'audio', label: 'AUDIO', key: 'A', href: 'audio.html' },
+            { id: 'backup', label: 'BACKUP', key: 'B', href: 'backup.html' }
+          ]},
+          { id: 'status', label: 'STATUS/', key: 'S', children: [
+            { id: 'aistatus', label: 'AISTATUS', key: 'A', href: 'aistatus.html' }
+          ]}
+        ]
+      };
+
+      let currentNode = TREE, history = [], nodeEls = [], pathEls = [], isAnimating = false, isOpen = false;
+      const overlay = document.getElementById('menuOverlay');
+      const svg = document.getElementById('menuSvg');
+      const closeBtn = document.getElementById('menuClose');
+      const backBtn = document.getElementById('menuBack');
+      const breadcrumb = document.getElementById('menuBreadcrumb');
+
+      function getCenter() { return { x: window.innerWidth / 2, y: window.innerHeight / 2 }; }
+
+      function getChildPositions(count) {
+        const c = getCenter(), w = window.innerWidth, h = window.innerHeight;
+        const layouts = {
+          1: [{ x: 0, y: -0.30 }],
+          2: [{ x: -0.30, y: -0.15 }, { x: 0.30, y: -0.15 }],
+          3: [{ x: -0.32, y: -0.22 }, { x: 0.32, y: -0.22 }, { x: 0, y: 0.30 }],
+          4: [{ x: -0.32, y: -0.23 }, { x: 0.32, y: -0.23 }, { x: 0.32, y: 0.27 }, { x: -0.32, y: 0.27 }],
+          5: [{ x: -0.32, y: -0.23 }, { x: 0.32, y: -0.23 }, { x: 0.36, y: 0.20 }, { x: 0, y: 0.35 }, { x: -0.36, y: 0.20 }]
+        };
+        const layout = layouts[Math.min(count, 5)] || layouts[5];
+        return Array.from({ length: count }, (_, i) => {
+          const l = layout[i % layout.length];
+          return { x: c.x + l.x * w, y: c.y + l.y * h };
+        });
+      }
+
+      function generatePath(from, to) {
+        const r = 20;
+        let d = `M ${from.x} ${from.y}`;
+        const dx = to.x - from.x, dy = to.y - from.y;
+        const absDx = Math.abs(dx), absDy = Math.abs(dy);
+        if (absDx < 5 && absDy < 5) return d;
+        if (absDx > absDy) {
+          const midX = from.x + dx * 0.5, signX = dx > 0 ? 1 : -1, signY = dy > 0 ? 1 : -1;
+          if (absDy < r * 2) { d += ` L ${to.x} ${to.y}`; }
+          else { d += ` L ${midX - r * signX} ${from.y} Q ${midX} ${from.y} ${midX} ${from.y + r * signY} L ${midX} ${to.y - r * signY} Q ${midX} ${to.y} ${midX + r * signX} ${to.y} L ${to.x} ${to.y}`; }
+        } else {
+          const midY = from.y + dy * 0.5, signX = dx > 0 ? 1 : -1, signY = dy > 0 ? 1 : -1;
+          if (absDx < r * 2) { d += ` L ${to.x} ${to.y}`; }
+          else { d += ` L ${from.x} ${midY - r * signY} Q ${from.x} ${midY} ${from.x + r * signX} ${midY} L ${to.x - r * signX} ${midY} Q ${to.x} ${midY} ${to.x} ${midY + r * signY} L ${to.x} ${to.y}`; }
+        }
+        return d;
+      }
+
+      function createMenuNode(data, x, y, isCenter = false) {
+        const el = document.createElement('div');
+        el.className = 'menu-node' + (isCenter ? ' is-center' : '');
+        el.dataset.id = data.id;
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        el.innerHTML = `<span class="label">${data.label}</span>${data.key ? `<span class="key">${data.key}</span>` : ''}`;
+        el.addEventListener('click', () => handleMenuClick(data));
+        el.addEventListener('mouseenter', () => pathEls.forEach(p => { if (p.active.dataset.target === data.id) p.active.classList.add('highlight'); }));
+        el.addEventListener('mouseleave', () => pathEls.forEach(p => p.active.classList.remove('highlight')));
+        overlay.appendChild(el);
+        return el;
+      }
+
+      function createPath(from, to, id) {
+        const pathD = generatePath(from, to);
+        const base = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        base.setAttribute('d', pathD); base.classList.add('path-base'); svg.appendChild(base);
+        const active = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        active.setAttribute('d', pathD); active.classList.add('path-active'); active.dataset.target = id; svg.appendChild(active);
+        return { base, active };
+      }
+
+      function clearMenu() {
+        return new Promise(resolve => {
+          if (!nodeEls.length && !pathEls.length) { resolve(); return; }
+          nodeEls.forEach(n => n.el.classList.add('fading'));
+          pathEls.forEach(p => { p.base.style.opacity = '0'; p.active.style.opacity = '0'; });
+          setTimeout(() => {
+            nodeEls.forEach(n => n.el.remove()); pathEls.forEach(p => { p.base.remove(); p.active.remove(); });
+            nodeEls = []; pathEls = []; resolve();
+          }, 350);
+        });
+      }
+
+      function renderMenu() {
+        const c = getCenter();
+        const centerEl = createMenuNode(currentNode, c.x, c.y, true);
+        nodeEls.push({ data: currentNode, el: centerEl });
+        requestAnimationFrame(() => requestAnimationFrame(() => centerEl.classList.add('visible')));
+        if (currentNode.children?.length) {
+          const positions = getChildPositions(currentNode.children.length);
+          setTimeout(() => {
+            currentNode.children.forEach((child, i) => {
+              setTimeout(() => {
+                const pos = positions[i], path = createPath(c, pos, child.id);
+                pathEls.push(path);
+                requestAnimationFrame(() => path.active.classList.add('drawing'));
+                setTimeout(() => {
+                  const el = createMenuNode(child, pos.x, pos.y);
+                  nodeEls.push({ data: child, el });
+                  requestAnimationFrame(() => el.classList.add('visible'));
+                }, 250);
+              }, i * 100);
+            });
+          }, 200);
+        }
+        backBtn.classList.toggle('visible', history.length > 0);
+        breadcrumb.textContent = [...history.map(n => n.label.replace('/', '')), currentNode.label.replace('/', '')].join(' → ');
+      }
+
+      function navigateInto(node) {
+        if (isAnimating) return; isAnimating = true;
+        const c = getCenter(), clickedEl = nodeEls.find(n => n.data.id === node.id)?.el;
+        nodeEls.forEach(n => { if (n.data.id !== node.id) n.el.classList.add('fading'); });
+        pathEls.forEach(p => { p.base.style.opacity = '0'; p.active.style.opacity = '0'; });
+        if (clickedEl) { clickedEl.classList.add('moving'); clickedEl.style.left = c.x + 'px'; clickedEl.style.top = c.y + 'px'; }
+        setTimeout(() => {
+          nodeEls.forEach(n => n.el.remove()); pathEls.forEach(p => { p.base.remove(); p.active.remove(); });
+          nodeEls = []; pathEls = []; history.push(currentNode); currentNode = node; renderMenu();
+          setTimeout(() => { isAnimating = false; }, 100);
+        }, 550);
+      }
+
+      function navigateBack() {
+        if (isAnimating || !history.length) return; isAnimating = true;
+        clearMenu().then(() => { currentNode = history.pop(); renderMenu(); setTimeout(() => { isAnimating = false; }, 100); });
+      }
+
+      function handleMenuClick(node) {
+        if (isAnimating) return;
+        if (node === currentNode && node.href) { closeMenu(); window.location.href = node.href; return; }
+        if (node === currentNode) return;
+        if (node.children) navigateInto(node);
+        else if (node.href) { closeMenu(); window.location.href = node.href; }
+      }
+
+      function openMenu() {
+        if (isOpen) return; isOpen = true; currentNode = TREE; history = [];
+        overlay.classList.add('is-open'); document.body.classList.add('menu-open'); renderMenu();
+      }
+
+      function closeMenu() {
+        if (!isOpen) return; isOpen = false;
+        overlay.classList.remove('is-open'); document.body.classList.remove('menu-open'); clearMenu();
+      }
+
+      function toggleMenu() { isOpen ? closeMenu() : openMenu(); }
+
+      closeBtn.addEventListener('click', closeMenu);
+      backBtn.addEventListener('click', navigateBack);
+      overlay.addEventListener('mousedown', e => { if (e.target === overlay) closeMenu(); });
+
+      function isTyping() {
+        const el = document.activeElement;
+        if (!el) return false;
+        const tag = el.tagName.toLowerCase();
+        return tag === 'input' || tag === 'textarea' || tag === 'select' || el.isContentEditable;
+      }
+
+      window.addEventListener('keydown', e => {
+        const key = e.key.toLowerCase();
+        if (key === 'm' && !e.ctrlKey && !e.metaKey && !e.altKey && !isTyping()) { e.preventDefault(); toggleMenu(); return; }
+        if (!isOpen) return;
+        if (key === 'escape') { e.preventDefault(); closeMenu(); return; }
+        if (key === 'backspace') { e.preventDefault(); navigateBack(); return; }
+        if (isAnimating) return;
+        if (e.key === 'Enter') { e.preventDefault(); closeMenu(); window.location.href = 'startpage.html'; return; }
+        if (currentNode.children) {
+          const match = currentNode.children.find(c => c.key?.toLowerCase() === key);
+          if (match) { e.preventDefault(); handleMenuClick(match); }
+        }
+      });
+
+      let resizeTimer;
+      window.addEventListener('resize', () => {
+        if (!isOpen || isAnimating) return;
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => clearMenu().then(() => renderMenu()), 200);
+      });
+
+      window.PCBMenu = { open: openMenu, close: closeMenu, toggle: toggleMenu };
+
+      document.getElementById('menuClick').addEventListener('click', openMenu);
+    })();
+  </script>
+</body>
+</html>
