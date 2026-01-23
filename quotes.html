@@ -1,114 +1,87 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>QUOTES</title>
   <style>
-    :root{
-      --bg:#0b0b0b;
-      --fg:#e6e6e6;
-      --muted:#bdbdbd;
-      --panel:#141414;
-      --panel2:#101010;
-      --stroke:#2a2a2a;
-      --stroke2:#3a3a3a;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --blur: 6px;
+    :root {
+      --bg: #0b0b0b;
+      --fg: #e6e6e6;
+      --muted: #888;
+      --muted2: #bdbdbd;
+      --panel: #141414;
+      --panel2: #101010;
+      --stroke: #2a2a2a;
+      --stroke2: #3a3a3a;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
 
-    *{ box-sizing:border-box; }
-    html, body{ height:100%; }
-    body{
-      margin:0;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      min-height: 100%;
       background: var(--bg);
       color: var(--fg);
       font-family: var(--mono);
-      letter-spacing: .2px;
+      letter-spacing: 0.2px;
     }
 
-    /* LEFT RAIL (menu trigger only) */
-    .rail{
-      position: fixed;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 56px;
-      border-right: 2px solid var(--stroke2);
-      background: var(--panel2);
-      display: grid;
-      place-items: start center;
-      padding-top: 12px;
-      z-index: 7;
-    }
-    .rail-btn{
-      width: 40px;
-      height: 40px;
-      padding: 0;
-      display: grid;
-      place-items: center;
-      background: var(--panel);
-      border: 2px solid var(--stroke2);
-      color: var(--fg);
-      cursor: pointer;
-      border-radius: 0;
-      font-family: var(--mono);
-    }
-    .rail-btn:hover{
-      background: var(--fg);
-      color: var(--bg);
-      border-color: var(--fg);
-    }
-    .rail-btn:active{
-      transform: translateY(1px);
-    }
-    .rail-glyph{
-      width: 18px;
-      height: 14px;
-      position: relative;
-    }
-    .rail-glyph::before,
-    .rail-glyph::after,
-    .rail-glyph span{
-      content:"";
-      position:absolute;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: currentColor;
-    }
-    .rail-glyph::before{ top: 0; }
-    .rail-glyph span{ top: 6px; }
-    .rail-glyph::after{ bottom: 0; }
+    body.menu-open { overflow: hidden; }
 
-    body.menu-open{
-      overflow:hidden;
-    }
-    body.menu-open main,
-    body.menu-open .rail{
-      filter: blur(var(--blur));
-    }
+    /* ═══════════════════════════════════════════════════════ */
+    /* MAIN CONTENT */
+    /* ═══════════════════════════════════════════════════════ */
 
-    .wrap{
+    .wrap {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 14px;
-      padding-left: calc(14px + 56px);
+      padding: 20px;
     }
 
-    .bar{
-      display:grid;
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--stroke2);
+    }
+
+    .title {
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .menu-hint {
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: var(--stroke2);
+      text-transform: uppercase;
+    }
+
+    .menu-hint .key {
+      display: inline-block;
+      border: 1px solid var(--stroke2);
+      padding: 2px 6px;
+      margin-left: 4px;
+    }
+
+    .bar {
+      display: grid;
       grid-template-columns: 1fr auto auto;
       gap: 10px;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
 
-    input[type="search"], select{
+    input[type="search"], select {
       width: 100%;
-      padding: 12px 12px;
+      padding: 12px;
       border: 2px solid var(--stroke2);
-      border-radius: 0;
       background: var(--panel);
       color: var(--fg);
       outline: none;
@@ -116,23 +89,25 @@
       font-size: 13px;
       text-transform: uppercase;
     }
-    input[type="search"]::placeholder{
+
+    input[type="search"]::placeholder {
       color: var(--muted);
-      opacity: .9;
+      opacity: 0.9;
     }
-    input[type="search"]:focus, select:focus{
+
+    input[type="search"]:focus, select:focus {
       border-color: var(--fg);
     }
-    select{
+
+    select {
       width: 160px;
       cursor: pointer;
     }
 
-    .count{
-      padding: 12px 12px;
+    .count {
+      padding: 12px;
       border: 2px solid var(--stroke2);
       background: var(--panel);
-      border-radius: 0;
       text-transform: uppercase;
       font-size: 12px;
       color: var(--muted);
@@ -141,24 +116,23 @@
       min-width: 90px;
     }
 
-    .cards{
-      display:grid;
+    .cards {
+      display: grid;
       grid-template-columns: repeat(12, 1fr);
       gap: 10px;
     }
 
-    .card{
+    .card {
       grid-column: span 6;
       border: 2px solid var(--stroke2);
       background: var(--panel);
-      border-radius: 0;
-      display:flex;
+      display: flex;
       flex-direction: column;
       min-height: 160px;
     }
 
-    .card-top{
-      display:grid;
+    .card-top {
+      display: grid;
       grid-template-columns: 1fr auto;
       gap: 10px;
       align-items: stretch;
@@ -166,19 +140,20 @@
       padding: 10px;
     }
 
-    .meta{
-      display:grid;
+    .meta {
+      display: grid;
       grid-template-columns: 1fr auto;
       gap: 10px;
-      align-items:center;
+      align-items: center;
     }
 
-    .id{
+    .id {
       font-size: 12px;
       color: var(--muted);
       text-transform: uppercase;
     }
-    .pct{
+
+    .pct {
       font-size: 12px;
       color: var(--muted);
       text-transform: uppercase;
@@ -186,90 +161,294 @@
       min-width: 72px;
     }
 
-    button{
-      appearance:none;
+    button {
+      appearance: none;
       border: 2px solid var(--fg);
       background: transparent;
       color: var(--fg);
-      border-radius: 0;
       padding: 10px 12px;
       font-family: var(--mono);
       font-size: 12px;
       text-transform: uppercase;
-      letter-spacing: .4px;
+      letter-spacing: 0.4px;
       cursor: pointer;
     }
-    button:hover{
+
+    button:hover {
       background: var(--fg);
       color: var(--bg);
     }
-    button:active{
+
+    button:active {
       transform: translateY(1px);
     }
 
-    .body{
+    .body {
       padding: 10px;
-      display:flex;
+      display: flex;
       flex-direction: column;
       gap: 10px;
       flex: 1 1 auto;
     }
 
-    blockquote{
-      margin:0;
-      padding:0;
+    blockquote {
+      margin: 0;
+      padding: 0;
       font-size: 16px;
       line-height: 1.35;
     }
 
-    .author{
+    .author {
       font-size: 12px;
       color: var(--muted);
       text-transform: uppercase;
     }
 
-    .toast{
+    .toast {
       position: fixed;
-      left: calc(14px + 56px);
-      bottom: 14px;
+      left: 20px;
+      bottom: 20px;
       padding: 10px 12px;
       border: 2px solid var(--fg);
       background: var(--bg);
       color: var(--fg);
-      border-radius: 0;
       text-transform: uppercase;
       font-size: 12px;
       opacity: 0;
       pointer-events: none;
       transition: opacity 120ms linear;
-      max-width: calc(100vw - 28px - 56px);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
       z-index: 5;
     }
-    .toast.show{ opacity: 1; }
 
-    @media (max-width: 980px){
-      .card{ grid-column: span 12; }
-      .bar{ grid-template-columns: 1fr; }
-      select{ width: 100%; }
-      .count{ text-align: left; }
-      .wrap{ padding-left: calc(10px + 56px); }
-      .toast{ left: calc(10px + 56px); bottom: 10px; }
+    .toast.show { opacity: 1; }
+
+    @media (max-width: 980px) {
+      .card { grid-column: span 12; }
+      .bar { grid-template-columns: 1fr; }
+      select { width: 100%; }
+      .count { text-align: left; }
+    }
+
+    /* ═══════════════════════════════════════════════════════ */
+    /* MENU OVERLAY */
+    /* ═══════════════════════════════════════════════════════ */
+
+    .menu-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: none;
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .menu-overlay.is-open { display: block; }
+
+    .menu-grid {
+      position: absolute;
+      inset: 0;
+      opacity: 0.22;
+      background-image:
+        linear-gradient(to right, rgba(230,230,230,.07) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(230,230,230,.07) 1px, transparent 1px);
+      background-size: 56px 56px;
+      pointer-events: none;
+    }
+
+    .menu-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .path-base {
+      fill: none;
+      stroke: rgba(230,230,230,.12);
+      stroke-width: 2;
+      transition: opacity 0.3s ease;
+    }
+
+    .path-active {
+      fill: none;
+      stroke: rgba(230,230,230,.4);
+      stroke-width: 2;
+      stroke-dasharray: 2000;
+      stroke-dashoffset: 2000;
+    }
+
+    .path-active.drawing {
+      animation: drawPath 520ms ease forwards;
+    }
+
+    .path-active.highlight {
+      stroke-dashoffset: 0;
+      opacity: 1;
+    }
+
+    @keyframes drawPath {
+      to { stroke-dashoffset: 0; }
+    }
+
+    .menu-node {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      min-width: 150px;
+      height: 54px;
+      border: 2px solid var(--fg);
+      background: rgba(0,0,0,.95);
+      color: var(--fg);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 0 14px;
+      cursor: pointer;
+      user-select: none;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 12px;
+      z-index: 3;
+      opacity: 0;
+      pointer-events: none;
+      transition: 
+        left 0.5s cubic-bezier(0.25, 0.1, 0.25, 1),
+        top 0.5s cubic-bezier(0.25, 0.1, 0.25, 1),
+        opacity 0.35s ease,
+        background 0.15s ease,
+        color 0.15s ease;
+    }
+
+    .menu-node.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .menu-node.moving {
+      z-index: 10;
+      transition: 
+        left 0.55s cubic-bezier(0.25, 0.1, 0.25, 1),
+        top 0.55s cubic-bezier(0.25, 0.1, 0.25, 1),
+        opacity 0.35s ease;
+    }
+
+    .menu-node.fading {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .menu-node:hover {
+      background: rgba(230,230,230,.95);
+      color: #000;
+    }
+
+    .menu-node:active {
+      transform: translate(-50%, -50%) translateY(1px);
+    }
+
+    .menu-node .label { white-space: nowrap; }
+
+    .menu-node .key {
+      padding: 4px 8px;
+      border: 2px solid var(--stroke2);
+      font-size: 10px;
+      color: #888;
+      background: rgba(0,0,0,.4);
+    }
+
+    .menu-node:hover .key {
+      border-color: #000;
+      color: #000;
+      background: transparent;
+    }
+
+    .menu-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 44px;
+      height: 44px;
+      border: 2px solid var(--fg);
+      background: rgba(0,0,0,.95);
+      color: var(--fg);
+      font-family: var(--mono);
+      font-size: 16px;
+      cursor: pointer;
+      z-index: 100;
+      display: grid;
+      place-items: center;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .menu-close:hover {
+      background: rgba(230,230,230,.95);
+      color: #000;
+    }
+
+    .menu-back {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 14px 18px;
+      border: 2px solid var(--stroke2);
+      background: rgba(0,0,0,.9);
+      color: #888;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s, border-color 0.15s, color 0.15s;
+    }
+
+    .menu-back.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .menu-back:hover {
+      border-color: var(--fg);
+      color: var(--fg);
+    }
+
+    .menu-breadcrumb {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: #888;
+      text-transform: uppercase;
+      z-index: 100;
+    }
+
+    .menu-hint-overlay {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: var(--stroke2);
+      text-transform: uppercase;
+      z-index: 100;
     }
   </style>
 </head>
 <body>
-  <aside class="rail" aria-label="Controls">
-    <button class="rail-btn" type="button" id="menuBtn" aria-label="Menu">
-      <div class="rail-glyph"><span></span></div>
-    </button>
-  </aside>
-
   <main class="wrap">
+    <div class="header">
+      <div class="title">Quotes</div>
+      <div class="menu-hint">Press <span class="key">M</span> for menu</div>
+    </div>
+
     <div class="bar">
-      <input id="q" type="search" placeholder="SEARCH" autocomplete="off" />
+      <input id="q" type="search" placeholder="SEARCH" autocomplete="off">
       <select id="mode" aria-label="Search mode">
         <option value="match">MATCH</option>
         <option value="percent">PERCENT</option>
@@ -282,240 +461,683 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite">COPIED</div>
 
+  <!-- Menu overlay -->
+  <div class="menu-overlay" id="menuOverlay">
+    <div class="menu-grid"></div>
+    <svg class="menu-svg" id="menuSvg"></svg>
+    <button class="menu-close" id="menuClose">✕</button>
+    <button class="menu-back" id="menuBack">← Back</button>
+    <div class="menu-breadcrumb" id="menuBreadcrumb"></div>
+    <div class="menu-hint-overlay">Esc to close</div>
+  </div>
+
   <script>
-    const QUOTES = [
-      { id: "Q-001", text: "The only thing we have to fear is fear itself.", author: "Franklin D. Roosevelt" },
-      { id: "Q-002", text: "I think, therefore I am.", author: "René Descartes" },
-      { id: "Q-003", text: "To be, or not to be, that is the question.", author: "William Shakespeare" },
-      { id: "Q-004", text: "That's one small step for man, one giant leap for mankind.", author: "Neil Armstrong" },
-      { id: "Q-005", text: "In the middle of difficulty lies opportunity.", author: "Albert Einstein" },
-      { id: "Q-006", text: "The unexamined life is not worth living.", author: "Socrates" },
-      { id: "Q-007", text: "Be the change that you wish to see in the world.", author: "Mahatma Gandhi" },
-      { id: "Q-008", text: "If you judge people, you have no time to love them.", author: "Mother Teresa" },
-      { id: "Q-009", text: "Not everything that can be counted counts, and not everything that counts can be counted.", author: "William Bruce Cameron" },
-      { id: "Q-010", text: "The journey of a thousand miles begins with one step.", author: "Lao Tzu" },
-      { id: "Q-011", text: "It always seems impossible until it's done.", author: "Nelson Mandela" },
-      { id: "Q-012", text: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", author: "Aristotle (attributed)" }
-    ];
+    (function() {
+      'use strict';
 
-    const elCards = document.getElementById("cards");
-    const elQ = document.getElementById("q");
-    const elCount = document.getElementById("count");
-    const elMode = document.getElementById("mode");
-    const toast = document.getElementById("toast");
-    let toastTimer = null;
-
-    function showToast(){
-      toast.classList.add("show");
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toast.classList.remove("show"), 900);
-    }
-
-    function escapeHtml(str){
-      return String(str)
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-
-    function normalize(str){
-      return String(str)
-        .toLowerCase()
-        .replace(/['’]/g, "")
-        .replace(/[^a-z0-9\s]/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-    }
-
-    function tokens(str){
-      const n = normalize(str);
-      return n ? n.split(" ") : [];
-    }
-
-    function uniqueInOrder(arr){
-      const seen = new Set();
-      const out = [];
-      for (const x of arr){
-        if (!seen.has(x)){
-          seen.add(x);
-          out.push(x);
-        }
+      // ═══════════════════════════════════════════════════════
+      // SESSION CHECK
+      // ═══════════════════════════════════════════════════════
+      const PREFIX = '_x_';
+      function getSession() {
+        try {
+          const d = localStorage.getItem(PREFIX + 's');
+          return d ? JSON.parse(atob(d)) : null;
+        } catch { return null; }
       }
-      return out;
-    }
+      function clearSession() {
+        localStorage.removeItem(PREFIX + 's');
+      }
 
-    function bigramCount(queryTokens, quoteTokens){
-      if (queryTokens.length < 2) return 0;
-      let count = 0;
-      for (let i = 0; i < queryTokens.length - 1; i++){
-        const a = queryTokens[i], b = queryTokens[i+1];
-        for (let j = 0; j < quoteTokens.length - 1; j++){
-          if (quoteTokens[j] === a && quoteTokens[j+1] === b){
-            count++;
-            break;
+      const session = getSession();
+      if (!session || Date.now() > session.e) {
+        clearSession();
+        window.location.replace('index.html');
+      }
+
+      // ═══════════════════════════════════════════════════════
+      // QUOTES DATA & LOGIC
+      // ═══════════════════════════════════════════════════════
+      const QUOTES = [
+        { id: "Q-001", text: "The only thing we have to fear is fear itself.", author: "Franklin D. Roosevelt" },
+        { id: "Q-002", text: "I think, therefore I am.", author: "René Descartes" },
+        { id: "Q-003", text: "To be, or not to be, that is the question.", author: "William Shakespeare" },
+        { id: "Q-004", text: "That's one small step for man, one giant leap for mankind.", author: "Neil Armstrong" },
+        { id: "Q-005", text: "In the middle of difficulty lies opportunity.", author: "Albert Einstein" },
+        { id: "Q-006", text: "The unexamined life is not worth living.", author: "Socrates" },
+        { id: "Q-007", text: "Be the change that you wish to see in the world.", author: "Mahatma Gandhi" },
+        { id: "Q-008", text: "If you judge people, you have no time to love them.", author: "Mother Teresa" },
+        { id: "Q-009", text: "Not everything that can be counted counts, and not everything that counts can be counted.", author: "William Bruce Cameron" },
+        { id: "Q-010", text: "The journey of a thousand miles begins with one step.", author: "Lao Tzu" },
+        { id: "Q-011", text: "It always seems impossible until it's done.", author: "Nelson Mandela" },
+        { id: "Q-012", text: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", author: "Aristotle (attributed)" }
+      ];
+
+      const elCards = document.getElementById("cards");
+      const elQ = document.getElementById("q");
+      const elCount = document.getElementById("count");
+      const elMode = document.getElementById("mode");
+      const toast = document.getElementById("toast");
+      let toastTimer = null;
+
+      function showToast() {
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 900);
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function normalize(str) {
+        return String(str)
+          .toLowerCase()
+          .replace(/['']/g, "")
+          .replace(/[^a-z0-9\s]/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      function tokens(str) {
+        const n = normalize(str);
+        return n ? n.split(" ") : [];
+      }
+
+      function uniqueInOrder(arr) {
+        const seen = new Set();
+        const out = [];
+        for (const x of arr) {
+          if (!seen.has(x)) {
+            seen.add(x);
+            out.push(x);
           }
         }
+        return out;
       }
-      return count;
-    }
 
-    function percentMatch(query, quoteText, quoteAuthor){
-      const q = uniqueInOrder(tokens(query));
-      if (q.length === 0) return 0;
-
-      const quoteTok = tokens(quoteText + " " + quoteAuthor);
-      const quoteSet = new Set(quoteTok);
-
-      let exact = 0;
-      let partial = 0;
-
-      for (const qt of q){
-        if (quoteSet.has(qt)){
-          exact++;
-          continue;
-        }
-        if (qt.length >= 3){
-          for (const wt of quoteSet){
-            if (wt.includes(qt) || qt.includes(wt)){
-              partial++;
+      function bigramCount(queryTokens, quoteTokens) {
+        if (queryTokens.length < 2) return 0;
+        let count = 0;
+        for (let i = 0; i < queryTokens.length - 1; i++) {
+          const a = queryTokens[i], b = queryTokens[i + 1];
+          for (let j = 0; j < quoteTokens.length - 1; j++) {
+            if (quoteTokens[j] === a && quoteTokens[j + 1] === b) {
+              count++;
               break;
             }
           }
         }
+        return count;
       }
 
-      const qLen = q.length;
-      const coverage = (exact + 0.6 * partial) / qLen;
+      function percentMatch(query, quoteText, quoteAuthor) {
+        const q = uniqueInOrder(tokens(query));
+        if (q.length === 0) return 0;
 
-      const bigramsTotal = Math.max(1, qLen - 1);
-      const bigramsHit = bigramCount(q, quoteTok);
-      const adjacency = bigramsHit / bigramsTotal;
+        const quoteTok = tokens(quoteText + " " + quoteAuthor);
+        const quoteSet = new Set(quoteTok);
 
-      const score = Math.max(0, Math.min(1, 0.80 * coverage + 0.20 * adjacency));
-      return Math.round(score * 100);
-    }
+        let exact = 0;
+        let partial = 0;
 
-    function cardMarkup(q, pct){
-      const hay = normalize(q.text + " " + q.author + " " + q.id);
-      const pctText = (typeof pct === "number") ? (String(pct).padStart(3, " ") + "%") : "";
-      return `
-        <article class="card" data-hay="${escapeHtml(hay)}">
-          <div class="card-top">
-            <div class="meta">
-              <div class="id">${escapeHtml(q.id)}</div>
-              <div class="pct">${escapeHtml(pctText)}</div>
+        for (const qt of q) {
+          if (quoteSet.has(qt)) {
+            exact++;
+            continue;
+          }
+          if (qt.length >= 3) {
+            for (const wt of quoteSet) {
+              if (wt.includes(qt) || qt.includes(wt)) {
+                partial++;
+                break;
+              }
+            }
+          }
+        }
+
+        const qLen = q.length;
+        const coverage = (exact + 0.6 * partial) / qLen;
+
+        const bigramsTotal = Math.max(1, qLen - 1);
+        const bigramsHit = bigramCount(q, quoteTok);
+        const adjacency = bigramsHit / bigramsTotal;
+
+        const score = Math.max(0, Math.min(1, 0.80 * coverage + 0.20 * adjacency));
+        return Math.round(score * 100);
+      }
+
+      function cardMarkup(q, pct) {
+        const hay = normalize(q.text + " " + q.author + " " + q.id);
+        const pctText = (typeof pct === "number") ? (String(pct).padStart(3, " ") + "%") : "";
+        return `
+          <article class="card" data-hay="${escapeHtml(hay)}">
+            <div class="card-top">
+              <div class="meta">
+                <div class="id">${escapeHtml(q.id)}</div>
+                <div class="pct">${escapeHtml(pctText)}</div>
+              </div>
+              <button type="button" data-copy="${escapeHtml(q.text)}">COPY</button>
             </div>
-            <button type="button" data-copy="${escapeHtml(q.text)}">COPY</button>
-          </div>
-          <div class="body">
-            <blockquote>${escapeHtml(q.text)}</blockquote>
-            <div class="author">${escapeHtml(q.author)}</div>
-          </div>
-        </article>
-      `;
-    }
-
-    async function copyText(btn, text){
-      try{
-        await navigator.clipboard.writeText(text);
-      }catch{
-        const ta = document.createElement("textarea");
-        ta.value = text;
-        ta.style.position = "fixed";
-        ta.style.opacity = "0";
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        document.body.removeChild(ta);
+            <div class="body">
+              <blockquote>${escapeHtml(q.text)}</blockquote>
+              <div class="author">${escapeHtml(q.author)}</div>
+            </div>
+          </article>
+        `;
       }
-      btn.textContent = "COPIED";
-      showToast();
-      setTimeout(() => (btn.textContent = "COPY"), 700);
-    }
 
-    function bind(){
-      elCards.querySelectorAll("button[data-copy]").forEach(btn => {
-        btn.addEventListener("click", () => copyText(btn, btn.getAttribute("data-copy")));
-      });
-    }
-
-    function render(listWithPct){
-      elCards.innerHTML = listWithPct.map(({q, pct}) => cardMarkup(q, pct)).join("");
-      bind();
-    }
-
-    function applyMatchFilter(){
-      const needle = normalize(elQ.value);
-      const cards = Array.from(elCards.children);
-      let shown = 0;
-
-      cards.forEach(card => {
-        const hay = card.getAttribute("data-hay") || "";
-        const ok = needle === "" || hay.includes(needle);
-        card.style.display = ok ? "" : "none";
-        if (ok) shown++;
-      });
-
-      elCount.textContent = String(shown);
-    }
-
-    function applyPercentRanking(){
-      const query = elQ.value.trim();
-      const ranked = QUOTES.map(q => ({
-        q,
-        pct: percentMatch(query, q.text, q.author)
-      }))
-      .sort((a, b) => {
-        if (b.pct !== a.pct) return b.pct - a.pct;
-        return a.q.id.localeCompare(b.q.id);
-      });
-
-      render(ranked);
-      elCards.querySelectorAll(".card").forEach(card => (card.style.display = ""));
-      elCount.textContent = String(ranked.length);
-    }
-
-    function apply(){
-      const mode = elMode.value;
-      if (mode === "percent"){
-        applyPercentRanking();
-      }else{
-        render(QUOTES.map(q => ({ q, pct: null })));
-        applyMatchFilter();
+      async function copyText(btn, text) {
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch {
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          ta.style.position = "fixed";
+          ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+        }
+        btn.textContent = "COPIED";
+        showToast();
+        setTimeout(() => (btn.textContent = "COPY"), 700);
       }
-    }
 
-    elQ.addEventListener("input", apply);
-    elMode.addEventListener("change", apply);
-    apply();
+      function bind() {
+        elCards.querySelectorAll("button[data-copy]").forEach(btn => {
+          btn.addEventListener("click", () => copyText(btn, btn.getAttribute("data-copy")));
+        });
+      }
 
-    // Concise menu.html injection + rail binding
-    fetch("menu.html")
-      .then(r => r.text())
-      .then(html => {
-        const doc = new DOMParser().parseFromString(html, "text/html");
+      function render(listWithPct) {
+        elCards.innerHTML = listWithPct.map(({ q, pct }) => cardMarkup(q, pct)).join("");
+        bind();
+      }
 
-        doc.querySelectorAll("style").forEach(st => {
-          const s = document.createElement("style");
-          s.textContent = st.textContent;
-          document.head.appendChild(s);
+      function applyMatchFilter() {
+        const needle = normalize(elQ.value);
+        const cards = Array.from(elCards.children);
+        let shown = 0;
+
+        cards.forEach(card => {
+          const hay = card.getAttribute("data-hay") || "";
+          const ok = needle === "" || hay.includes(needle);
+          card.style.display = ok ? "" : "none";
+          if (ok) shown++;
         });
 
-        const overlay = doc.getElementById("pcbOverlay");
-        if (overlay) document.body.appendChild(overlay);
+        elCount.textContent = String(shown);
+      }
 
-        doc.querySelectorAll("script").forEach(sc => {
-          const s = document.createElement("script");
-          s.textContent = sc.textContent;
-          document.body.appendChild(s);
+      function applyPercentRanking() {
+        const query = elQ.value.trim();
+        const ranked = QUOTES.map(q => ({
+          q,
+          pct: percentMatch(query, q.text, q.author)
+        }))
+          .sort((a, b) => {
+            if (b.pct !== a.pct) return b.pct - a.pct;
+            return a.q.id.localeCompare(b.q.id);
+          });
+
+        render(ranked);
+        elCards.querySelectorAll(".card").forEach(card => (card.style.display = ""));
+        elCount.textContent = String(ranked.length);
+      }
+
+      function apply() {
+        const mode = elMode.value;
+        if (mode === "percent") {
+          applyPercentRanking();
+        } else {
+          render(QUOTES.map(q => ({ q, pct: null })));
+          applyMatchFilter();
+        }
+      }
+
+      elQ.addEventListener("input", apply);
+      elMode.addEventListener("change", apply);
+      apply();
+
+      // ═══════════════════════════════════════════════════════
+      // MENU TREE
+      // ═══════════════════════════════════════════════════════
+      const TREE = {
+        id: 'start',
+        label: 'START/',
+        key: 'Enter',
+        href: 'startpage.html',
+        children: [
+          {
+            id: 'info',
+            label: 'INFO/',
+            key: 'I',
+            children: [
+              { id: 'quotes', label: 'QUOTES', key: 'Q', href: 'quotes.html' },
+              { id: 'contact', label: 'CONTACT', key: 'C', href: 'contact.html' },
+              { id: 'bio', label: 'BIO', key: 'B', href: 'bio.html' },
+              { id: 'notes', label: 'NOTES', key: 'N', href: 'notes.html' }
+            ]
+          },
+          {
+            id: 'tools',
+            label: 'TOOLS/',
+            key: 'T',
+            children: [
+              { id: 'calc', label: 'CALCULATOR', key: 'C', href: 'calculator.html' }
+            ]
+          },
+          {
+            id: 'files',
+            label: 'FILES/',
+            key: 'F',
+            children: [
+              { id: 'images', label: 'IMAGES', key: 'I', href: 'images.html' },
+              { id: 'audio', label: 'AUDIO', key: 'A', href: 'audio.html' },
+              { id: 'backup', label: 'BACKUP', key: 'B', href: 'backup.html' }
+            ]
+          },
+          {
+            id: 'status',
+            label: 'STATUS/',
+            key: 'S',
+            children: [
+              { id: 'aistatus', label: 'AISTATUS', key: 'A', href: 'aistatus.html' }
+            ]
+          }
+        ]
+      };
+
+      // ═══════════════════════════════════════════════════════
+      // MENU STATE
+      // ═══════════════════════════════════════════════════════
+      let currentNode = TREE;
+      let history = [];
+      let nodeEls = [];
+      let pathEls = [];
+      let isAnimating = false;
+      let isOpen = false;
+
+      const overlay = document.getElementById('menuOverlay');
+      const svg = document.getElementById('menuSvg');
+      const closeBtn = document.getElementById('menuClose');
+      const backBtn = document.getElementById('menuBack');
+      const breadcrumb = document.getElementById('menuBreadcrumb');
+
+      function getCenter() {
+        return { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+      }
+
+      function getChildPositions(count) {
+        const c = getCenter();
+        const positions = [];
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+
+        const layouts = {
+          1: [{ x: 0, y: -0.30 }],
+          2: [{ x: -0.30, y: -0.15 }, { x: 0.30, y: -0.15 }],
+          3: [{ x: -0.32, y: -0.22 }, { x: 0.32, y: -0.22 }, { x: 0, y: 0.30 }],
+          4: [{ x: -0.32, y: -0.23 }, { x: 0.32, y: -0.23 }, { x: 0.32, y: 0.27 }, { x: -0.32, y: 0.27 }],
+          5: [{ x: -0.32, y: -0.23 }, { x: 0.32, y: -0.23 }, { x: 0.36, y: 0.20 }, { x: 0, y: 0.35 }, { x: -0.36, y: 0.20 }]
+        };
+
+        const layout = layouts[Math.min(count, 5)] || layouts[5];
+
+        for (let i = 0; i < count; i++) {
+          const l = layout[i % layout.length];
+          positions.push({
+            x: c.x + l.x * w,
+            y: c.y + l.y * h
+          });
+        }
+
+        return positions;
+      }
+
+      function generatePath(from, to) {
+        const r = 20;
+        let d = `M ${from.x} ${from.y}`;
+
+        const dx = to.x - from.x;
+        const dy = to.y - from.y;
+        const absDx = Math.abs(dx);
+        const absDy = Math.abs(dy);
+
+        if (absDx < 5 && absDy < 5) return d;
+
+        if (absDx > absDy) {
+          const midX = from.x + dx * 0.5;
+          const signX = dx > 0 ? 1 : -1;
+          const signY = dy > 0 ? 1 : -1;
+
+          if (absDy < r * 2) {
+            d += ` L ${to.x} ${to.y}`;
+          } else {
+            d += ` L ${midX - r * signX} ${from.y}`;
+            d += ` Q ${midX} ${from.y} ${midX} ${from.y + r * signY}`;
+            d += ` L ${midX} ${to.y - r * signY}`;
+            d += ` Q ${midX} ${to.y} ${midX + r * signX} ${to.y}`;
+            d += ` L ${to.x} ${to.y}`;
+          }
+        } else {
+          const midY = from.y + dy * 0.5;
+          const signX = dx > 0 ? 1 : -1;
+          const signY = dy > 0 ? 1 : -1;
+
+          if (absDx < r * 2) {
+            d += ` L ${to.x} ${to.y}`;
+          } else {
+            d += ` L ${from.x} ${midY - r * signY}`;
+            d += ` Q ${from.x} ${midY} ${from.x + r * signX} ${midY}`;
+            d += ` L ${to.x - r * signX} ${midY}`;
+            d += ` Q ${to.x} ${midY} ${to.x} ${midY + r * signY}`;
+            d += ` L ${to.x} ${to.y}`;
+          }
+        }
+
+        return d;
+      }
+
+      function createMenuNode(data, x, y, isCenter = false) {
+        const el = document.createElement('div');
+        el.className = 'menu-node' + (isCenter ? ' is-center' : '');
+        el.dataset.id = data.id;
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+
+        const label = document.createElement('span');
+        label.className = 'label';
+        label.textContent = data.label;
+        el.appendChild(label);
+
+        if (data.key) {
+          const key = document.createElement('span');
+          key.className = 'key';
+          key.textContent = data.key;
+          el.appendChild(key);
+        }
+
+        el.addEventListener('click', () => handleMenuClick(data));
+        el.addEventListener('mouseenter', () => highlightPath(data.id));
+        el.addEventListener('mouseleave', unhighlightPaths);
+
+        overlay.appendChild(el);
+        return el;
+      }
+
+      function createPath(from, to, id) {
+        const pathD = generatePath(from, to);
+
+        const base = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        base.setAttribute('d', pathD);
+        base.classList.add('path-base');
+        svg.appendChild(base);
+
+        const active = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        active.setAttribute('d', pathD);
+        active.classList.add('path-active');
+        active.dataset.target = id;
+        svg.appendChild(active);
+
+        return { base, active };
+      }
+
+      function highlightPath(id) {
+        pathEls.forEach(p => {
+          if (p.active.dataset.target === id) {
+            p.active.classList.add('highlight');
+          }
+        });
+      }
+
+      function unhighlightPaths() {
+        pathEls.forEach(p => {
+          p.active.classList.remove('highlight');
+        });
+      }
+
+      function clearMenu() {
+        return new Promise(resolve => {
+          if (nodeEls.length === 0 && pathEls.length === 0) {
+            resolve();
+            return;
+          }
+
+          nodeEls.forEach(n => n.el.classList.add('fading'));
+          pathEls.forEach(p => {
+            p.base.style.opacity = '0';
+            p.active.style.opacity = '0';
+          });
+
+          setTimeout(() => {
+            nodeEls.forEach(n => n.el.remove());
+            pathEls.forEach(p => {
+              p.base.remove();
+              p.active.remove();
+            });
+            nodeEls = [];
+            pathEls = [];
+            resolve();
+          }, 350);
+        });
+      }
+
+      function renderMenu() {
+        const c = getCenter();
+
+        const centerEl = createMenuNode(currentNode, c.x, c.y, true);
+        nodeEls.push({ data: currentNode, el: centerEl });
+
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            centerEl.classList.add('visible');
+          });
         });
 
-        document.getElementById("menuBtn").addEventListener("click", () => {
-          if (window.PCBMenu) window.PCBMenu.toggle();
+        if (currentNode.children && currentNode.children.length > 0) {
+          const positions = getChildPositions(currentNode.children.length);
+
+          setTimeout(() => {
+            currentNode.children.forEach((child, i) => {
+              setTimeout(() => {
+                const pos = positions[i];
+                const path = createPath(c, pos, child.id);
+                pathEls.push(path);
+
+                requestAnimationFrame(() => {
+                  path.active.classList.add('drawing');
+                });
+
+                setTimeout(() => {
+                  const el = createMenuNode(child, pos.x, pos.y);
+                  nodeEls.push({ data: child, el });
+
+                  requestAnimationFrame(() => {
+                    el.classList.add('visible');
+                  });
+                }, 250);
+              }, i * 100);
+            });
+          }, 200);
+        }
+
+        backBtn.classList.toggle('visible', history.length > 0);
+        const path = history.map(n => n.label.replace('/', '')).concat([currentNode.label.replace('/', '')]);
+        breadcrumb.textContent = path.join(' → ');
+      }
+
+      function navigateInto(node) {
+        if (isAnimating) return;
+        isAnimating = true;
+
+        const c = getCenter();
+        const clickedEl = nodeEls.find(n => n.data.id === node.id)?.el;
+
+        nodeEls.forEach(n => {
+          if (n.data.id !== node.id) {
+            n.el.classList.add('fading');
+          }
         });
+
+        pathEls.forEach(p => {
+          p.base.style.opacity = '0';
+          p.active.style.opacity = '0';
+        });
+
+        if (clickedEl) {
+          clickedEl.classList.add('moving');
+          clickedEl.style.left = c.x + 'px';
+          clickedEl.style.top = c.y + 'px';
+        }
+
+        setTimeout(() => {
+          nodeEls.forEach(n => n.el.remove());
+          pathEls.forEach(p => {
+            p.base.remove();
+            p.active.remove();
+          });
+          nodeEls = [];
+          pathEls = [];
+
+          history.push(currentNode);
+          currentNode = node;
+
+          renderMenu();
+
+          setTimeout(() => {
+            isAnimating = false;
+          }, 100);
+        }, 550);
+      }
+
+      function navigateBack() {
+        if (isAnimating || history.length === 0) return;
+        isAnimating = true;
+
+        clearMenu().then(() => {
+          currentNode = history.pop();
+          renderMenu();
+          setTimeout(() => {
+            isAnimating = false;
+          }, 100);
+        });
+      }
+
+      function handleMenuClick(node) {
+        if (isAnimating) return;
+
+        if (node === currentNode && node.href) {
+          closeMenu();
+          window.location.href = node.href;
+          return;
+        }
+
+        if (node === currentNode) return;
+
+        if (node.children) {
+          navigateInto(node);
+        } else if (node.href) {
+          closeMenu();
+          window.location.href = node.href;
+        }
+      }
+
+      function openMenu() {
+        if (isOpen) return;
+        isOpen = true;
+        currentNode = TREE;
+        history = [];
+        overlay.classList.add('is-open');
+        document.body.classList.add('menu-open');
+        renderMenu();
+      }
+
+      function closeMenu() {
+        if (!isOpen) return;
+        isOpen = false;
+        overlay.classList.remove('is-open');
+        document.body.classList.remove('menu-open');
+        clearMenu();
+      }
+
+      function toggleMenu() {
+        isOpen ? closeMenu() : openMenu();
+      }
+
+      closeBtn.addEventListener('click', closeMenu);
+      backBtn.addEventListener('click', navigateBack);
+
+      overlay.addEventListener('mousedown', (e) => {
+        if (e.target === overlay) closeMenu();
       });
+
+      function isTyping() {
+        const el = document.activeElement;
+        if (!el) return false;
+        const tag = el.tagName.toLowerCase();
+        return tag === 'input' || tag === 'textarea' || tag === 'select' || el.isContentEditable;
+      }
+
+      window.addEventListener('keydown', (e) => {
+        const key = e.key.toLowerCase();
+
+        if (key === 'm' && !e.ctrlKey && !e.metaKey && !e.altKey && !isTyping()) {
+          e.preventDefault();
+          toggleMenu();
+          return;
+        }
+
+        if (!isOpen) return;
+
+        if (key === 'escape') {
+          e.preventDefault();
+          closeMenu();
+          return;
+        }
+
+        if (key === 'backspace') {
+          e.preventDefault();
+          navigateBack();
+          return;
+        }
+
+        if (isAnimating) return;
+
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          closeMenu();
+          window.location.href = 'startpage.html';
+          return;
+        }
+
+        if (currentNode.children) {
+          const match = currentNode.children.find(c => c.key && c.key.toLowerCase() === key);
+          if (match) {
+            e.preventDefault();
+            handleMenuClick(match);
+          }
+        }
+      });
+
+      let resizeTimer;
+      window.addEventListener('resize', () => {
+        if (!isOpen || isAnimating) return;
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          clearMenu().then(() => renderMenu());
+        }, 200);
+      });
+
+      window.PCBMenu = { open: openMenu, close: closeMenu, toggle: toggleMenu };
+    })();
   </script>
 </body>
 </html>
