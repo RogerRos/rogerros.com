@@ -61,6 +61,9 @@
       letter-spacing: 1px;
       color: var(--stroke2);
       text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
     .menu-hint .key {
@@ -68,6 +71,19 @@
       border: 1px solid var(--stroke2);
       padding: 2px 6px;
       margin-left: 4px;
+    }
+
+    .menu-hint .click-link {
+      padding: 8px 14px;
+      border: 1px solid var(--muted);
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .menu-hint .click-link:hover {
+      border-color: var(--fg);
+      color: var(--fg);
     }
 
     .bar {
@@ -444,7 +460,7 @@
   <main class="wrap">
     <div class="header">
       <div class="title">Quotes</div>
-      <div class="menu-hint">Press <span class="key">M</span> for menu</div>
+      <div class="menu-hint">Press <span class="key">M</span> for menu <span class="click-link" id="menuClick">or click here</span></div>
     </div>
 
     <div class="bar">
@@ -1138,6 +1154,11 @@
       });
 
       window.PCBMenu = { open: openMenu, close: closeMenu, toggle: toggleMenu };
+
+      // Click link opens menu
+      document.getElementById('menuClick').addEventListener('click', () => {
+        openMenu();
+      });
     })();
   </script>
 </body>
