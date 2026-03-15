@@ -523,100 +523,6 @@
     .c-purple { color: #b07cc6; }
     .c-red { color: #e06060; }
 
-    /* ── MUSIC SUBSECTION ── */
-
-    .music-toggle {
-      margin-top: 20px;
-      padding: 12px 16px;
-      border: 1px solid var(--stroke);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transition: border-color 0.2s;
-      user-select: none;
-    }
-
-    .music-toggle:hover {
-      border-color: var(--stroke2);
-    }
-
-    .music-toggle.open {
-      border-color: var(--muted);
-      border-bottom: none;
-    }
-
-    .music-toggle-label {
-      font-size: 10px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--muted2);
-    }
-
-    .music-toggle-arrow {
-      margin-left: auto;
-      font-size: 10px;
-      color: var(--muted);
-      transition: transform 0.3s ease;
-    }
-
-    .music-toggle.open .music-toggle-arrow {
-      transform: rotate(90deg);
-    }
-
-    .music-player {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.4s ease;
-    }
-
-    .music-player.open {
-      max-height: 200px;
-    }
-
-    .music-player-inner {
-      padding: 16px;
-      border: 1px solid var(--muted);
-      border-top: none;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .music-nav {
-      font-family: var(--mono);
-      font-size: 16px;
-      color: var(--muted);
-      background: none;
-      border: 1px solid var(--stroke);
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: color 0.2s, border-color 0.2s;
-    }
-
-    .music-nav:hover {
-      color: var(--fg);
-      border-color: var(--muted);
-    }
-
-    .music-quote {
-      flex: 1;
-      font-size: 14px;
-      line-height: 1.6;
-      font-style: italic;
-      text-align: center;
-      transition: color 0.3s;
-      min-height: 24px;
-    }
-
-    .music-quote.c-blue { color: #5b9bd5; }
-    .music-quote.c-purple { color: #b07cc6; }
-    .music-quote.c-red { color: #e06060; }
 
     /* ── REFLECTION 3D SCROLL ── */
 
@@ -916,23 +822,8 @@
           </div>
           <div class="accord-body">
             <div class="content-text">
-              <p>The funniest thing about me is also my biggest irony. I am torn between two action frameworks: perfectionism and pragmatism. Perfectionism drives me toward order, cleanliness, optimization and efficiency. Pragmatism pulls me toward greed, explosive growth and self-interest. And the ironic connection with my personal life is that I seek connection with others, but my rational nature is precisely what stops me from achieving it.</p>
-              <p>Bach and classical in general for my perfectionist side, heavy metal for my pragmatic times, and pop music when I think I have made an emotional connection. Spoiler: it always ends in heavy metal a few days later.</p>
-
-              <!-- Music subsection -->
-              <div class="music-toggle" id="musicToggle">
-                <span class="accord-marker" style="background:var(--muted2)"></span>
-                <span class="music-toggle-label">Favorite Music</span>
-                <span class="music-toggle-arrow">&#9654;</span>
-              </div>
-              <div class="music-player" id="musicPlayer">
-                <div class="music-player-inner">
-                  <button class="music-nav" id="musicPrev">&#9664;</button>
-                  <div class="music-quote c-blue" id="musicQuote">I will build a company</div>
-                  <button class="music-nav" id="musicNext">&#9654;</button>
-                </div>
-                <a class="spotify-badge" href="https://open.spotify.com/artist/34fPfgEOFHcejEWS5K6lu2?si=xlK5EHr4Qcac5EHXZbInpQ" target="_blank" rel="noopener">Also on Spotify &#8599;</a>
-              </div>
+              <p>I make music and upload it on Spotify.</p>
+              <a class="spotify-badge" href="https://open.spotify.com/artist/34fPfgEOFHcejEWS5K6lu2?si=xlK5EHr4Qcac5EHXZbInpQ" target="_blank" rel="noopener">My Spotify &#8599;</a>
             </div>
           </div>
         </div>
@@ -1238,20 +1129,9 @@
 
     // ── Accordion ──
 
-    function closeMusic() {
-      if (window._musicPlayer) {
-        window._musicPlayer.stop();
-        musicOpen = false;
-        musicToggle.classList.remove('open');
-        musicPlayerEl.classList.remove('open');
-      }
-    }
-
     document.querySelectorAll('[data-accord]').forEach(item => {
       item.querySelector('.accord-head').addEventListener('click', () => {
-        const wasOpen = item.classList.contains('open');
         item.classList.toggle('open');
-        if (wasOpen) closeMusic();
       });
     });
 
@@ -1263,7 +1143,6 @@
       const anyOpen = [...items].some(i => i.classList.contains('open'));
       if (anyOpen) {
         items.forEach(i => i.classList.remove('open'));
-        closeMusic();
         accordToggle.textContent = 'Open All';
       } else {
         items.forEach(i => i.classList.add('open'));
@@ -1324,75 +1203,6 @@
       }
     });
 
-    // ── Music subsection toggle ──
-
-    const musicToggle = document.getElementById('musicToggle');
-    const musicPlayerEl = document.getElementById('musicPlayer');
-    let musicOpen = false;
-
-    musicToggle.addEventListener('click', () => {
-      musicOpen = !musicOpen;
-      musicToggle.classList.toggle('open', musicOpen);
-      musicPlayerEl.classList.toggle('open', musicOpen);
-      if (musicOpen) {
-        window._musicPlayer.playCurrentMode();
-      } else {
-        window._musicPlayer.stop();
-      }
-    });
-
-    // ── Music player (mp3) ──
-
-    const MODES = [
-      { cls: 'c-blue',   src: 'resources/music/song1.mp3?v=3', vol: 1.0, text: 'I will build a company' },
-      { cls: 'c-purple', src: 'resources/music/song2.mp3?v=3', vol: 0.5, text: 'Oh, how beautiful' },
-      { cls: 'c-red',    src: 'resources/music/song3.mp3?v=3', vol: 0.7, text: 'I gotta become rich' }
-    ];
-
-    let modeIdx = 0;
-    let audio = null;
-    const musicQuote = document.getElementById('musicQuote');
-
-    function setMusicUI() {
-      const m = MODES[modeIdx];
-      musicQuote.className = 'music-quote ' + m.cls;
-      musicQuote.textContent = m.text;
-    }
-
-    window._musicPlayer = {
-      playCurrentMode() {
-        if (audio) { audio.pause(); audio = null; }
-        const m = MODES[modeIdx];
-        audio = new Audio(m.src);
-        audio.volume = m.vol;
-        audio.play().catch(e => console.error('Audio:', e));
-      },
-      stop() {
-        if (audio) { audio.pause(); audio.currentTime = 0; audio = null; }
-      }
-    };
-
-    function changeMode(dir) {
-      modeIdx = (modeIdx + dir + MODES.length) % MODES.length;
-      setMusicUI();
-      window._musicPlayer.playCurrentMode();
-    }
-
-    document.getElementById('musicPrev').addEventListener('click', () => changeMode(-1));
-    document.getElementById('musicNext').addEventListener('click', () => changeMode(1));
-
-    // Stop music when leaving biography
-    const origClose = window._closeAllPanels;
-    window._closeAllPanels = function() {
-      window._musicPlayer.stop();
-      musicOpen = false;
-      musicToggle.classList.remove('open');
-      musicPlayerEl.classList.remove('open');
-      document.querySelectorAll('[data-accord]').forEach(a => a.classList.remove('open'));
-      origClose();
-    };
-
-    setMusicUI();
 
     // ── 3D Vertical Scroll Reflection ──
 
