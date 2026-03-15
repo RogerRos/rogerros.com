@@ -1344,9 +1344,9 @@
     // ── Music player ──
 
     const MODES = [
-      { cls: 'c-blue',   src: 'resources/music/song1.wav', start: 0,   vol: 1.0, text: 'I will build a company' },
-      { cls: 'c-purple', src: 'resources/music/song2.wav', start: 37,  vol: 0.5, text: 'Oh, how beautiful' },
-      { cls: 'c-red',    src: 'resources/music/song3.wav', start: 105, vol: 0.7, text: 'I gotta become rich' }
+      { cls: 'c-blue',   src: 'resources/music/song1.mp3?v=2', vol: 1.0, text: 'I will build a company' },
+      { cls: 'c-purple', src: 'resources/music/song2.mp3?v=2', vol: 0.5, text: 'Oh, how beautiful' },
+      { cls: 'c-red',    src: 'resources/music/song3.mp3?v=2', vol: 0.7, text: 'I gotta become rich' }
     ];
 
     let modeIdx = 0;
@@ -1364,9 +1364,8 @@
         if (audio) { audio.pause(); }
         const m = MODES[modeIdx];
         audio = new Audio(m.src);
-        audio.currentTime = m.start;
         audio.volume = m.vol;
-        audio.play().catch(() => {});
+        audio.play().catch(e => console.error('Audio play failed:', m.src, e));
       },
       stop() {
         if (audio) { audio.pause(); audio.currentTime = 0; audio = null; }
