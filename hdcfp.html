@@ -400,6 +400,191 @@
 
     .content-text h3:first-child { margin-top: 0; }
 
+    .lm-timeline {
+      position: relative;
+      padding-left: 48px;
+    }
+
+    .lm-timeline::before {
+      content: '';
+      position: absolute;
+      left: 18px;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, var(--stroke2) 10%, var(--stroke2) 90%, transparent);
+    }
+
+    .lm-card {
+      position: relative;
+      margin-bottom: 32px;
+      cursor: pointer;
+    }
+
+    .lm-card:last-child { margin-bottom: 0; }
+
+    .lm-node {
+      position: absolute;
+      left: -38px;
+      top: 24px;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      border: 2px solid var(--stroke2);
+      background: var(--bg);
+      transition: border-color 0.4s, box-shadow 0.4s, background 0.4s;
+      z-index: 2;
+    }
+
+    .lm-card.open .lm-node {
+      border-color: var(--fg);
+      background: var(--fg);
+      box-shadow: 0 0 12px rgba(255,255,255,0.3);
+    }
+
+    .lm-head {
+      position: relative;
+      padding: 24px 28px;
+      border: 1px solid var(--stroke);
+      background: rgba(10,10,14,0.6);
+      overflow: hidden;
+      transition: border-color 0.4s, background 0.4s;
+    }
+
+    .lm-card:hover .lm-head {
+      border-color: var(--stroke2);
+      background: rgba(18,18,22,0.8);
+    }
+
+    .lm-card.open .lm-head {
+      border-color: var(--muted);
+      border-bottom-color: var(--stroke);
+      background: rgba(18,18,22,0.95);
+    }
+
+    .lm-accent {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+    }
+
+    .lm-number {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 72px;
+      font-weight: 600;
+      letter-spacing: -4px;
+      color: rgba(255,255,255,0.03);
+      line-height: 1;
+      pointer-events: none;
+      transition: color 0.5s;
+    }
+
+    .lm-card.open .lm-number {
+      color: rgba(255,255,255,0.06);
+    }
+
+    .lm-tag {
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+      transition: color 0.3s;
+    }
+
+    .lm-card.open .lm-tag { color: var(--stroke2); }
+
+    .lm-title {
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      color: var(--muted2);
+      transition: color 0.3s;
+    }
+
+    .lm-card.open .lm-title { color: var(--fg); }
+
+    .lm-hint {
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+      padding-left: 48px;
+    }
+
+    .lm-body {
+      max-height: 0;
+      overflow: hidden;
+      border: 1px solid transparent;
+      border-top: none;
+      background: rgba(10,10,14,0.95);
+      transition: max-height 0.6s cubic-bezier(0.4,0,0.2,1), border-color 0.4s, padding 0.4s;
+      padding: 0 28px;
+    }
+
+    .lm-card.open .lm-body {
+      max-height: 800px;
+      border-color: var(--muted);
+      border-top-color: transparent;
+      padding: 28px 28px 32px;
+    }
+
+    .lm-body-inner {
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease 0.15s, transform 0.4s ease 0.15s;
+    }
+
+    .lm-card.open .lm-body-inner {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .lm-grid {
+      display: grid;
+      gap: 0;
+    }
+
+    .lm-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--stroke);
+    }
+
+    .lm-row:last-child { border-bottom: none; }
+    .lm-row:first-child { padding-top: 0; }
+
+    .lm-row-label {
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .lm-row-text {
+      font-size: 13px;
+      line-height: 1.85;
+      color: var(--muted2);
+    }
+
+    @media (max-width: 500px) {
+      .lm-timeline { padding-left: 36px; }
+      .lm-timeline::before { left: 12px; }
+      .lm-node { left: -30px; width: 11px; height: 11px; }
+      .lm-head { padding: 20px 18px; }
+      .lm-body { padding: 0 18px; }
+      .lm-card.open .lm-body { padding: 20px 18px 24px; }
+      .lm-number { font-size: 56px; right: 12px; }
+    }
+
     .section-label-row {
       display: flex;
       align-items: center;
@@ -839,7 +1024,104 @@
         <button class="back-btn" data-back>Back</button>
       </div>
       <div class="section">
-        <div class="section-label">Top 3 Learning Moments</div>
+        <div class="section-label">Insights</div>
+
+        <div class="lm-hint">Click to expand</div>
+        <div class="lm-timeline">
+
+          <div class="lm-card" data-lm>
+            <div class="lm-node"></div>
+            <div class="lm-head">
+              <div class="lm-accent" style="background:#5b9bd5"></div>
+              <div class="lm-number">01</div>
+              <div class="lm-tag">Time Management</div>
+              <div class="lm-title">The Pomodoro Technique</div>
+            </div>
+            <div class="lm-body">
+              <div class="lm-body-inner">
+                <div class="lm-grid">
+                  <div class="lm-row">
+                    <div class="lm-row-label" style="color:#5b9bd5">What I Learned</div>
+                    <div class="lm-row-text">The Pomodoro Technique is a time management method based on working in focused 25 minute intervals followed by short 5 minute breaks. After four cycles you take a longer break. It is an efficient way to structure study time and maintain consistent concentration.</div>
+                  </div>
+                  <div class="lm-row">
+                    <div class="lm-row-label" style="color:#5b9bd5">How I Applied It</div>
+                    <div class="lm-row-text">I used it during exam preparation. When I had multiple exams in the same week, structuring study sessions into timed intervals made the workload manageable.</div>
+                  </div>
+                  <div class="lm-row">
+                    <div class="lm-row-label" style="color:#5b9bd5">Advice for Future Students</div>
+                    <div class="lm-row-text">It would be worth considering as a study method. Setting a 25 minute timer and focusing on one task at a time is a simple adjustment that can improve the quality of a study session.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lm-card" data-lm>
+            <div class="lm-node"></div>
+            <div class="lm-head">
+              <div class="lm-accent" style="background:#b07cc6"></div>
+              <div class="lm-number">02</div>
+              <div class="lm-tag">Wellness &amp; Performance</div>
+              <div class="lm-title">Emotional &amp; Mental Wellness Adjustment</div>
+            </div>
+            <div class="lm-body">
+              <div class="lm-body-inner">
+                <div class="lm-grid">
+                  <div class="lm-row">
+                    <div class="lm-row-label" style="color:#b07cc6">What I Learned</div>
+                    <div class="lm-row-text">Together with my classmate Dale, we prepared a presentation on emotional and mental wellness adjustment for HDC101. While researching for it, I found an MIT study (Okano et al., 2019) that tracked 88 college students and showed that sleep quality alone explained 25% of grade variance. The core idea is straightforward: wellness directly impacts academic performance. It is not a secondary concern, it is a functional requirement for consistent results.</div>
+                  </div>
+                  <div class="lm-row">
+                    <div class="lm-row-label" style="color:#b07cc6">How I Applied It</div>
+                    <div class="lm-row-text">I already had a stable sleep schedule and most of the information I shared in the presentation was something I already knew and practiced beforehand.</div>
+                  </div>
+                  <div class="lm-row">
+                    <div class="lm-row-label" style="color:#b07cc6">Advice for Future Students</div>
+                    <div class="lm-row-text">I would strongly recommend maintaining a stable sleep schedule. It is proven that it benefits not only academic performance but overall quality of life in general. The presentation is available below.</div>
+                  </div>
+                  <div class="lm-row" style="border-bottom:none;padding-bottom:0">
+                    <div class="wisdom-actions">
+                      <button class="wisdom-btn" id="lmPdfViewBtn">View Presentation</button>
+                    </div>
+                    <div class="pdf-viewer" id="lmPdfViewer">
+                      <iframe src="" id="lmPdfFrame"></iframe>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lm-card" data-lm>
+            <div class="lm-node"></div>
+            <div class="lm-head">
+              <div class="lm-accent" style="background:#e06060"></div>
+              <div class="lm-number">03</div>
+              <div class="lm-tag">Academic Navigation</div>
+              <div class="lm-title">Hidden Curriculum &amp; Counter Storytelling</div>
+            </div>
+            <div class="lm-body">
+              <div class="lm-body-inner">
+                <div class="lm-grid">
+                  <div class="lm-row">
+                    <div class="lm-row-label" style="color:#e06060">What I Learned</div>
+                    <div class="lm-row-text">This group activity introduced the concept of the hidden curriculum, which refers to the unwritten rules, expectations and norms that exist in college but are never explicitly taught. Things like emailing an instructor when something goes wrong, attending office hours or communicating proactively are expected behaviors that many students, especially those coming from different educational systems, do not necessarily know about.</div>
+                  </div>
+                  <div class="lm-row">
+                    <div class="lm-row-label" style="color:#e06060">How I Applied It</div>
+                    <div class="lm-row-text">I started requesting office hours in other classes and applied the communication methods discussed in the scenarios.</div>
+                  </div>
+                  <div class="lm-row">
+                    <div class="lm-row-label" style="color:#e06060">Advice for Future Students</div>
+                    <div class="lm-row-text">This activity is very useful for first quarter students. I took the course in my third quarter so there were many things I already knew from other classes. For this reason, if it is possible to start with this course as one of the first to take, it makes more sense that way.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
   </div>
@@ -1183,25 +1465,38 @@
       wisdomToggle.textContent = anyOpen ? 'Close All' : 'Open All';
     }
 
+    document.querySelectorAll('[data-lm]').forEach(card => {
+      card.querySelector('.lm-head').addEventListener('click', () => {
+        const wasOpen = card.classList.contains('open');
+        document.querySelectorAll('[data-lm]').forEach(c => c.classList.remove('open'));
+        if (!wasOpen) card.classList.add('open');
+      });
+    });
+
     // ── PDF viewer toggle ──
 
-    const pdfViewBtn = document.getElementById('pdfViewBtn');
-    const pdfViewer = document.getElementById('pdfViewer');
-    const pdfFrame = document.getElementById('pdfFrame');
-    let pdfOpen = false;
+    function setupPdfToggle(btnId, viewerId, frameId) {
+      const btn = document.getElementById(btnId);
+      const viewer = document.getElementById(viewerId);
+      const frame = document.getElementById(frameId);
+      let open = false;
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        open = !open;
+        if (open) {
+          frame.src = 'resources/pdf/presentation.pdf';
+          viewer.classList.add('open');
+          btn.textContent = 'Hide Presentation';
+        } else {
+          viewer.classList.remove('open');
+          btn.textContent = 'View Presentation';
+          setTimeout(() => { frame.src = ''; }, 400);
+        }
+      });
+    }
 
-    pdfViewBtn.addEventListener('click', () => {
-      pdfOpen = !pdfOpen;
-      if (pdfOpen) {
-        pdfFrame.src = 'resources/pdf/presentation.pdf';
-        pdfViewer.classList.add('open');
-        pdfViewBtn.textContent = 'Hide Presentation';
-      } else {
-        pdfViewer.classList.remove('open');
-        pdfViewBtn.textContent = 'View Presentation';
-        setTimeout(() => { pdfFrame.src = ''; }, 400);
-      }
-    });
+    setupPdfToggle('pdfViewBtn', 'pdfViewer', 'pdfFrame');
+    setupPdfToggle('lmPdfViewBtn', 'lmPdfViewer', 'lmPdfFrame');
 
 
     // ── 3D Vertical Scroll Reflection ──
