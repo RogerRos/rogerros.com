@@ -714,25 +714,11 @@
 </head>
 <body>
 
-  <!-- LOGIN -->
-  <div class="login-screen" id="loginScreen">
-    <div class="login-container">
-      <div class="icon"></div>
-      <form class="form" id="form" autocomplete="off">
-        <input type="text" class="input" id="user" placeholder="Identifier" autocomplete="off" spellcheck="false" required>
-        <input type="password" class="input" id="pass" placeholder="Key" autocomplete="off" required>
-        <div class="error" id="error">Access denied</div>
-        <div class="lockout" id="lockout"></div>
-        <button type="submit" class="btn" id="btn">Verify</button>
-      </form>
-      <footer class="login-footer">
-        <p style="font-size:8px;color:#555">Isolated access, this login only grants entry to polsfp. This page is designed for desktop. If visiting from a mobile device or tablet, switching to a computer is recommended.</p>
-      </footer>
-    </div>
-  </div>
+  <!-- LOGIN (disabled) -->
+  <div class="login-screen" id="loginScreen" style="display:none"></div>
 
   <!-- 3D GALLERY -->
-  <div id="galleryScreen">
+  <div id="galleryScreen" class="active">
     <canvas id="galleryCanvas"></canvas>
     <div class="exhibit-label" id="exhibitLabel"></div>
 
@@ -742,8 +728,6 @@
         <button class="dock-btn" id="toggleOrbit">Pause</button>
         <div class="dock-dot"></div>
         <button class="dock-btn" id="toggleInfo">Info</button>
-        <div class="dock-dot"></div>
-        <button class="dock-btn" id="logoutBtn">Logout</button>
       </div>
     </div>
 
@@ -876,169 +860,13 @@
     </div>
   </div>
 
-  <!-- ═══ SCRIPT 1: Auth + UI ═══ -->
+  <!-- ═══ SCRIPT 1: UI ═══ -->
   <script>
   (function() {
     'use strict';
 
-    const PREFIX = '_pols_';
-
-    const CONFIG = {
-      maxAttempts: 5,
-      lockoutMs: 120000,
-      sessionMs: 3600000
-    };
-
-    const CREDENTIALS = {
-      'efee93005df615f608279a0f61e45b72a2e54c223610a15067f8f136f6449b21':
-        '158a323a7ba44870f23d96f1516dd70aa48e9a72db4ebb026b0a89e212a208ab'
-    };
-
-    async function sha256(str) {
-      const data = new TextEncoder().encode(str);
-      const buffer = await crypto.subtle.digest('SHA-256', data);
-      return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-
-    const encode = o => btoa(JSON.stringify(o));
-    const decode = s => { try { return JSON.parse(atob(s)); } catch { return null; } };
-    const get = k => { const d = localStorage.getItem(PREFIX + k); return d ? decode(d) : null; };
-    const set = (k, v) => localStorage.setItem(PREFIX + k, encode(v));
-    const del = k => localStorage.removeItem(PREFIX + k);
-
-    function getAttempts() {
-      const data = get('a');
-      if (!data) return { c: 0, t: 0, l: false };
-      if (data.l && Date.now() - data.t > CONFIG.lockoutMs) { del('a'); return { c: 0, t: 0, l: false }; }
-      return data;
-    }
-
-    function addAttempt() {
-      const data = getAttempts();
-      data.c++; data.t = Date.now();
-      if (data.c >= CONFIG.maxAttempts) data.l = true;
-      set('a', data);
-      return data;
-    }
-
-    function isLocked() {
-      const data = getAttempts();
-      if (!data.l) return false;
-      if (Date.now() - data.t > CONFIG.lockoutMs) { del('a'); return false; }
-      return true;
-    }
-
-    function lockoutRemaining() {
-      const data = getAttempts();
-      if (!data.l) return 0;
-      return Math.max(0, Math.ceil((CONFIG.lockoutMs - (Date.now() - data.t)) / 1000));
-    }
-
-    function getFingerprint() {
-      const d = [navigator.language, screen.colorDepth, new Date().getTimezoneOffset(), navigator.hardwareConcurrency || 0, screen.width + 'x' + screen.height].join('|');
-      let h = 0;
-      for (let i = 0; i < d.length; i++) { h = ((h << 5) - h) + d.charCodeAt(i); h |= 0; }
-      return h.toString(36);
-    }
-
-    function createSession(user, hash) {
-      const session = {
-        u: user, h: hash.substring(0, 16), f: getFingerprint(),
-        t: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36),
-        c: Date.now(), e: Date.now() + CONFIG.sessionMs
-      };
-      set('s', session); del('a'); return session;
-    }
-
-    function validateSession() {
-      const s = get('s');
-      if (!s) return false;
-      if (Date.now() > s.e) { del('s'); return false; }
-      if (s.f !== getFingerprint()) { del('s'); return false; }
-      return true;
-    }
-
-    // ── Screens ──
-
-    function showGallery() {
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('galleryScreen').classList.add('active');
-      window.dispatchEvent(new Event('gallery-open'));
-    }
-
-    function showLogin() {
-      document.getElementById('galleryScreen').classList.remove('active');
-      document.getElementById('loginScreen').style.display = '';
-      window._closeAllPanels && window._closeAllPanels();
-    }
-
-    window._showLogin = showLogin;
-    window._delSession = () => del('s');
-
-    if (validateSession()) showGallery();
-
-    // Logout
-    document.getElementById('logoutBtn').addEventListener('click', () => { del('s'); showLogin(); });
-
-    // Login form
-    const form = document.getElementById('form');
-    const userInput = document.getElementById('user');
-    const passInput = document.getElementById('pass');
-    const errorEl = document.getElementById('error');
-    const lockoutEl = document.getElementById('lockout');
-    const btn = document.getElementById('btn');
-
-    const showError = msg => { errorEl.textContent = msg; errorEl.classList.add('show'); };
-    const hideError = () => errorEl.classList.remove('show');
-
-    function updateLockout() {
-      const remaining = lockoutRemaining();
-      if (remaining > 0) {
-        const m = Math.floor(remaining / 60), s = remaining % 60;
-        lockoutEl.textContent = `Locked: ${m}:${s.toString().padStart(2, '0')}`;
-        btn.disabled = true; userInput.disabled = true; passInput.disabled = true;
-      } else {
-        lockoutEl.textContent = '';
-        btn.disabled = false; userInput.disabled = false; passInput.disabled = false;
-      }
-    }
-
-    if (isLocked()) { updateLockout(); setInterval(updateLockout, 1000); }
-
-    form.addEventListener('submit', async e => {
-      e.preventDefault(); hideError();
-      if (isLocked()) { updateLockout(); return; }
-
-      const user = userInput.value.trim().toLowerCase();
-      const pass = passInput.value;
-      if (!user || !pass) { showError('All fields required'); return; }
-
-      btn.disabled = true; btn.textContent = '...';
-      await new Promise(r => setTimeout(r, 250 + Math.random() * 250));
-
-      const userHash = await sha256(user);
-      const passHash = await sha256(pass);
-      const expected = CREDENTIALS[userHash];
-
-      if (expected && passHash === expected) {
-        createSession(user, userHash);
-        showGallery();
-      } else {
-        const attempts = addAttempt();
-        const remaining = CONFIG.maxAttempts - attempts.c;
-        if (attempts.l) {
-          showError('Too many attempts');
-          updateLockout();
-          setInterval(updateLockout, 1000);
-        } else {
-          showError(`Access denied (${remaining} left)`);
-        }
-        passInput.value = '';
-        btn.disabled = false; btn.textContent = 'Verify';
-      }
-    });
-
-    [userInput, passInput].forEach(el => el.addEventListener('input', hideError));
+    // Gallery opens immediately
+    window.dispatchEvent(new Event('gallery-open'));
 
     // ── Content panels ──
 
