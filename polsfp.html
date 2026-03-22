@@ -27,17 +27,18 @@
       background: var(--bg);
       color: var(--fg);
       font-family: var(--mono);
+      overflow: hidden;
     }
 
-    /* ═══════════════════════════════════════════════════════ */
-    /* LOGIN SCREEN                                           */
-    /* ═══════════════════════════════════════════════════════ */
+    /* ── LOGIN ── */
 
     .login-screen {
       display: grid;
       place-items: center;
       min-height: 100vh;
       padding: 20px;
+      position: relative;
+      z-index: 100;
     }
 
     .login-container {
@@ -47,9 +48,7 @@
       animation: fadeIn 0.6s ease 0.2s forwards;
     }
 
-    @keyframes fadeIn {
-      to { opacity: 1; }
-    }
+    @keyframes fadeIn { to { opacity: 1; } }
 
     .icon {
       width: 80px;
@@ -82,11 +81,7 @@
       border-bottom: none;
     }
 
-    .form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+    .form { display: flex; flex-direction: column; gap: 16px; }
 
     .input {
       width: 100%;
@@ -108,13 +103,8 @@
       font-size: 10px;
     }
 
-    .input:focus {
-      border-color: var(--fg);
-    }
-
-    .input[type="password"] {
-      letter-spacing: 3px;
-    }
+    .input:focus { border-color: var(--fg); }
+    .input[type="password"] { letter-spacing: 3px; }
 
     .btn {
       padding: 16px;
@@ -130,14 +120,8 @@
       transition: opacity 0.15s;
     }
 
-    .btn:hover {
-      opacity: 0.85;
-    }
-
-    .btn:disabled {
-      opacity: 0.3;
-      cursor: not-allowed;
-    }
+    .btn:hover { opacity: 0.85; }
+    .btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
     .error {
       padding: 12px;
@@ -150,9 +134,7 @@
       display: none;
     }
 
-    .error.show {
-      display: block;
-    }
+    .error.show { display: block; }
 
     .lockout {
       font-size: 10px;
@@ -162,10 +144,7 @@
       text-transform: uppercase;
     }
 
-    .login-footer {
-      margin-top: 64px;
-      text-align: center;
-    }
+    .login-footer { margin-top: 64px; text-align: center; }
 
     .login-footer p {
       font-size: 9px;
@@ -175,30 +154,193 @@
       line-height: 1.8;
     }
 
-    /* ═══════════════════════════════════════════════════════ */
-    /* CONTENT SCREEN                                         */
-    /* ═══════════════════════════════════════════════════════ */
+    /* ── GALLERY ── */
 
-    .content-screen {
+    #galleryScreen {
       display: none;
-      min-height: 100vh;
-      background: #0b0b0b;
+      position: fixed;
+      inset: 0;
+      z-index: 10;
     }
 
-    .content-screen.active {
+    #galleryScreen.active { display: block; }
+
+    #galleryCanvas {
+      width: 100%;
+      height: 100%;
       display: block;
     }
 
-    .wrap {
-      max-width: 640px;
-      margin: 0 auto;
-      padding: 20px;
-      padding-bottom: 80px;
-      opacity: 0;
-      animation: fadeIn 0.6s ease 0.2s forwards;
+    .exhibit-hover { cursor: pointer; }
+
+    /* ── DOCK BAR ── */
+
+    .dock-rail {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 20;
+      height: 6px;
+      background: var(--stroke);
+      pointer-events: none;
     }
 
-    .header {
+    .dock-bump {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 21;
+      display: flex;
+      align-items: flex-end;
+      gap: 0;
+      pointer-events: none;
+    }
+
+    .dock-inner {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 12px 28px 14px;
+      background: var(--bg);
+      border: 1px solid var(--stroke);
+      border-bottom: none;
+      border-radius: 12px 12px 0 0;
+      pointer-events: auto;
+    }
+
+    .dock-btn {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted2);
+      background: none;
+      border: 1px solid var(--stroke);
+      padding: 8px 18px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+      white-space: nowrap;
+    }
+
+    .dock-btn:hover {
+      color: var(--fg);
+      border-color: var(--muted);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .dock-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--stroke2);
+      flex-shrink: 0;
+      margin: 0 8px;
+    }
+
+    /* ── INFO PANEL ── */
+
+    .info-panel {
+      position: fixed;
+      bottom: 48px;
+      left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      z-index: 21;
+      max-width: 400px;
+      width: calc(100% - 40px);
+      background: rgba(10, 10, 10, 0.95);
+      border: 1px solid var(--stroke);
+      padding: 20px 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .info-panel.open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .info-panel p {
+      font-size: 11px;
+      line-height: 1.7;
+      color: var(--muted2);
+      margin-bottom: 10px;
+    }
+
+    .info-panel p:last-child { margin-bottom: 0; }
+
+    .info-panel .info-title {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--fg);
+      margin-bottom: 12px;
+    }
+
+    /* ── EXHIBIT LABEL ── */
+
+    .exhibit-label {
+      position: fixed;
+      z-index: 25;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted2);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      transform: translate(-50%, -100%);
+      padding: 4px 8px;
+      white-space: nowrap;
+    }
+
+    .exhibit-label.visible { opacity: 1; }
+
+    /* ── CONTENT PANELS ── */
+
+    .content-panel {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      overflow-y: auto;
+    }
+
+    .content-panel.active {
+      display: block;
+      animation: panelIn 0.45s ease forwards;
+    }
+
+    .content-panel.exiting {
+      animation: panelOut 0.35s ease forwards;
+    }
+
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes panelOut {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(16px); }
+    }
+
+    .panel-inner {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    .panel-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -207,44 +349,15 @@
       border-bottom: 2px solid var(--stroke2);
     }
 
-    .title {
+    .panel-title {
       font-size: 12px;
       font-weight: 400;
       letter-spacing: 2px;
       text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .section {
-      margin-bottom: 32px;
-    }
-
-    .section-label {
-      font-size: 10px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--stroke2);
-      margin-bottom: 12px;
-    }
-
-    .content-text {
-      font-size: 13px;
-      line-height: 1.7;
       color: var(--muted2);
     }
 
-    .footer-note {
-      margin-top: 48px;
-      padding-top: 24px;
-      border-top: 1px solid var(--stroke);
-      font-size: 11px;
-      color: var(--muted);
-      line-height: 1.6;
-      text-align: center;
-      letter-spacing: 0.5px;
-    }
-
-    .logout-btn {
+    .back-btn {
       font-size: 9px;
       letter-spacing: 1px;
       color: var(--stroke2);
@@ -257,9 +370,193 @@
       transition: border-color 0.2s, color 0.2s;
     }
 
-    .logout-btn:hover {
+    .back-btn:hover {
       border-color: var(--fg);
       color: var(--fg);
+    }
+
+    .section { margin-bottom: 32px; }
+
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--stroke2);
+      margin-bottom: 12px;
+    }
+
+    .content-text {
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--muted2);
+    }
+
+    .content-text p { margin-bottom: 16px; }
+    .content-text p:last-child { margin-bottom: 0; }
+
+    .footer-note {
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--stroke);
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.6;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── READER ── */
+
+    .reader-stage {
+      position: relative;
+      width: 100%;
+    }
+
+    .reader-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+    }
+
+    .reader-pdf-col {
+      perspective: 1200px;
+      flex-shrink: 0;
+    }
+
+    .pdf-card {
+      position: relative;
+      will-change: transform;
+      transform-style: preserve-3d;
+    }
+
+    .pdf-canvas-wrap {
+      position: relative;
+      display: inline-block;
+      line-height: 0;
+    }
+
+    .r-pdf {
+      display: block;
+      max-height: 82vh;
+      width: auto;
+      border: 1px solid var(--stroke);
+    }
+
+    .r-hl {
+      position: absolute;
+      top: 0;
+      left: 0;
+      max-height: 82vh;
+      width: auto;
+      pointer-events: none;
+    }
+
+    .reader-text-col {
+      width: 0;
+      min-width: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity 0.5s ease 0.4s;
+    }
+
+    .reader-stage.phase-split .reader-text-col {
+      width: 300px;
+      opacity: 1;
+    }
+
+    .typed-content {
+      width: 300px;
+      font-size: 13px;
+      line-height: 1.85;
+      color: var(--muted2);
+      padding: 8px 4px 8px 16px;
+    }
+
+    .typed-content p {
+      margin-bottom: 14px;
+    }
+
+    .typed-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    #panel-section2 .panel-inner,
+    #panel-section3 .panel-inner,
+    #panel-section4 .panel-inner {
+      max-width: 96vw;
+      padding: 12px 16px 50px;
+    }
+
+    #panel-section2 .panel-header,
+    #panel-section3 .panel-header,
+    #panel-section4 .panel-header {
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+    }
+
+    .cursor-blink {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background: var(--fg);
+      vertical-align: text-bottom;
+      animation: cursorBlink 0.7s step-end infinite;
+    }
+
+    @keyframes cursorBlink {
+      50% { opacity: 0; }
+    }
+
+    .reader-nav {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .nav-arrow {
+      font-family: var(--mono);
+      font-size: 14px;
+      color: var(--muted);
+      background: none;
+      border: 1px solid var(--stroke);
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s, opacity 0.2s;
+    }
+
+    .nav-arrow:hover {
+      color: var(--fg);
+      border-color: var(--muted);
+    }
+
+    .nav-arrow.disabled {
+      opacity: 0.15;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .nav-counter {
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .reader-loading {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+      padding: 40px 0;
     }
   </style>
 </head>
@@ -277,201 +574,1335 @@
         <button type="submit" class="btn" id="btn">Verify</button>
       </form>
       <footer class="login-footer">
-        <p>This interface serves as a filter<br>Not a barrier</p>
-        <p style="margin-top:12px;font-size:8px;color:#333">Isolated access — this login only grants entry to polsfp</p>
+        <p style="font-size:8px;color:#555">Isolated access, this login only grants entry to polsfp. This page is designed for desktop. If visiting from a mobile device or tablet, switching to a computer is recommended.</p>
       </footer>
     </div>
   </div>
 
-  <!-- CONTENT -->
-  <div class="content-screen" id="contentScreen">
-    <main class="wrap">
-      <div class="header">
-        <div class="title">Polsfp</div>
-        <button class="logout-btn" id="logoutBtn">Logout</button>
-      </div>
+  <!-- 3D GALLERY -->
+  <div id="galleryScreen">
+    <canvas id="galleryCanvas"></canvas>
+    <div class="exhibit-label" id="exhibitLabel"></div>
 
-      <div class="section">
-        <div class="section-label">Placeholder</div>
-        <div class="content-text">This page is reserved. Content will be added here.</div>
+    <div class="dock-rail"></div>
+    <div class="dock-bump">
+      <div class="dock-inner">
+        <button class="dock-btn" id="toggleOrbit">Pause</button>
+        <div class="dock-dot"></div>
+        <button class="dock-btn" id="toggleInfo">Info</button>
+        <div class="dock-dot"></div>
+        <button class="dock-btn" id="logoutBtn">Logout</button>
       </div>
+    </div>
 
-      <div class="footer-note">Private access only.</div>
-    </main>
+    <div class="info-panel" id="infoPanel">
+      <div class="info-title">POLS Final Project</div>
+      <p>This is an interactive exhibition of my POLS course final project. Each orbiting object represents a section of the project.</p>
+      <p>Drag to orbit the view. Scroll to zoom. Click any object to open its content. Press Escape or Back to return.</p>
+    </div>
   </div>
 
+  <!-- CONTENT PANELS -->
+  <div class="content-panel" id="panel-section1">
+    <div class="panel-inner">
+      <div class="panel-header">
+        <div class="panel-title">Section 1</div>
+        <button class="back-btn" data-back>Back</button>
+      </div>
+      <div class="section">
+        <!-- content goes here -->
+      </div>
+    </div>
+  </div>
+
+  <div class="content-panel" id="panel-section2">
+    <div class="panel-inner">
+      <div class="panel-header">
+        <div class="panel-title">The Origin of Belief</div>
+        <button class="back-btn" data-back>Back</button>
+      </div>
+      <div class="section">
+        <div class="reader-stage" data-reader="section2">
+          <div class="reader-loading">Loading...</div>
+          <div class="reader-row" style="display:none">
+            <div class="reader-pdf-col">
+              <div class="pdf-card">
+                <div class="pdf-canvas-wrap">
+                  <canvas class="r-pdf"></canvas>
+                  <canvas class="r-hl"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="reader-text-col">
+              <div class="typed-content"></div>
+            </div>
+          </div>
+          <div class="reader-nav" style="display:none">
+            <button class="nav-arrow nav-prev">&#9664;</button>
+            <span class="nav-counter">1 / 3</span>
+            <button class="nav-arrow nav-next">&#9654;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-panel" id="panel-section3">
+    <div class="panel-inner">
+      <div class="panel-header">
+        <div class="panel-title">Agents of Influence</div>
+        <button class="back-btn" data-back>Back</button>
+      </div>
+      <div class="section">
+        <div class="reader-stage" data-reader="section3">
+          <div class="reader-loading">Loading...</div>
+          <div class="reader-row" style="display:none">
+            <div class="reader-pdf-col">
+              <div class="pdf-card">
+                <div class="pdf-canvas-wrap">
+                  <canvas class="r-pdf"></canvas>
+                  <canvas class="r-hl"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="reader-text-col">
+              <div class="typed-content"></div>
+            </div>
+          </div>
+          <div class="reader-nav" style="display:none">
+            <button class="nav-arrow nav-prev">&#9664;</button>
+            <span class="nav-counter">1 / 3</span>
+            <button class="nav-arrow nav-next">&#9654;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-panel" id="panel-section4">
+    <div class="panel-inner">
+      <div class="panel-header">
+        <div class="panel-title">Events &amp; Polarization</div>
+        <button class="back-btn" data-back>Back</button>
+      </div>
+      <div class="section">
+        <div class="reader-stage" data-reader="section4">
+          <div class="reader-loading">Loading...</div>
+          <div class="reader-row" style="display:none">
+            <div class="reader-pdf-col">
+              <div class="pdf-card">
+                <div class="pdf-canvas-wrap">
+                  <canvas class="r-pdf"></canvas>
+                  <canvas class="r-hl"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="reader-text-col">
+              <div class="typed-content"></div>
+            </div>
+          </div>
+          <div class="reader-nav" style="display:none">
+            <button class="nav-arrow nav-prev">&#9664;</button>
+            <span class="nav-counter">1 / 3</span>
+            <button class="nav-arrow nav-next">&#9654;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SCRIPT 1: Auth + UI ═══ -->
   <script>
-    (function() {
-      'use strict';
+  (function() {
+    'use strict';
 
-      const PREFIX = '_pols_';
+    const PREFIX = '_pols_';
 
-      const CONFIG = {
-        maxAttempts: 5,
-        lockoutMs: 120000,
-        sessionMs: 3600000
+    const CONFIG = {
+      maxAttempts: 5,
+      lockoutMs: 120000,
+      sessionMs: 3600000
+    };
+
+    const CREDENTIALS = {
+      'efee93005df615f608279a0f61e45b72a2e54c223610a15067f8f136f6449b21':
+        '158a323a7ba44870f23d96f1516dd70aa48e9a72db4ebb026b0a89e212a208ab'
+    };
+
+    async function sha256(str) {
+      const data = new TextEncoder().encode(str);
+      const buffer = await crypto.subtle.digest('SHA-256', data);
+      return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    const encode = o => btoa(JSON.stringify(o));
+    const decode = s => { try { return JSON.parse(atob(s)); } catch { return null; } };
+    const get = k => { const d = localStorage.getItem(PREFIX + k); return d ? decode(d) : null; };
+    const set = (k, v) => localStorage.setItem(PREFIX + k, encode(v));
+    const del = k => localStorage.removeItem(PREFIX + k);
+
+    function getAttempts() {
+      const data = get('a');
+      if (!data) return { c: 0, t: 0, l: false };
+      if (data.l && Date.now() - data.t > CONFIG.lockoutMs) { del('a'); return { c: 0, t: 0, l: false }; }
+      return data;
+    }
+
+    function addAttempt() {
+      const data = getAttempts();
+      data.c++; data.t = Date.now();
+      if (data.c >= CONFIG.maxAttempts) data.l = true;
+      set('a', data);
+      return data;
+    }
+
+    function isLocked() {
+      const data = getAttempts();
+      if (!data.l) return false;
+      if (Date.now() - data.t > CONFIG.lockoutMs) { del('a'); return false; }
+      return true;
+    }
+
+    function lockoutRemaining() {
+      const data = getAttempts();
+      if (!data.l) return 0;
+      return Math.max(0, Math.ceil((CONFIG.lockoutMs - (Date.now() - data.t)) / 1000));
+    }
+
+    function getFingerprint() {
+      const d = [navigator.language, screen.colorDepth, new Date().getTimezoneOffset(), navigator.hardwareConcurrency || 0, screen.width + 'x' + screen.height].join('|');
+      let h = 0;
+      for (let i = 0; i < d.length; i++) { h = ((h << 5) - h) + d.charCodeAt(i); h |= 0; }
+      return h.toString(36);
+    }
+
+    function createSession(user, hash) {
+      const session = {
+        u: user, h: hash.substring(0, 16), f: getFingerprint(),
+        t: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36),
+        c: Date.now(), e: Date.now() + CONFIG.sessionMs
       };
+      set('s', session); del('a'); return session;
+    }
 
-      const CREDENTIALS = {
-        'efee93005df615f608279a0f61e45b72a2e54c223610a15067f8f136f6449b21':
-          '158a323a7ba44870f23d96f1516dd70aa48e9a72db4ebb026b0a89e212a208ab'
-      };
+    function validateSession() {
+      const s = get('s');
+      if (!s) return false;
+      if (Date.now() > s.e) { del('s'); return false; }
+      if (s.f !== getFingerprint()) { del('s'); return false; }
+      return true;
+    }
 
-      async function sha256(str) {
-        const data = new TextEncoder().encode(str);
-        const buffer = await crypto.subtle.digest('SHA-256', data);
-        return Array.from(new Uint8Array(buffer))
-          .map(b => b.toString(16).padStart(2, '0'))
-          .join('');
+    // ── Screens ──
+
+    function showGallery() {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('galleryScreen').classList.add('active');
+      window.dispatchEvent(new Event('gallery-open'));
+    }
+
+    function showLogin() {
+      document.getElementById('galleryScreen').classList.remove('active');
+      document.getElementById('loginScreen').style.display = '';
+      window._closeAllPanels && window._closeAllPanels();
+    }
+
+    window._showLogin = showLogin;
+    window._delSession = () => del('s');
+
+    if (validateSession()) showGallery();
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', () => { del('s'); showLogin(); });
+
+    // Login form
+    const form = document.getElementById('form');
+    const userInput = document.getElementById('user');
+    const passInput = document.getElementById('pass');
+    const errorEl = document.getElementById('error');
+    const lockoutEl = document.getElementById('lockout');
+    const btn = document.getElementById('btn');
+
+    const showError = msg => { errorEl.textContent = msg; errorEl.classList.add('show'); };
+    const hideError = () => errorEl.classList.remove('show');
+
+    function updateLockout() {
+      const remaining = lockoutRemaining();
+      if (remaining > 0) {
+        const m = Math.floor(remaining / 60), s = remaining % 60;
+        lockoutEl.textContent = `Locked: ${m}:${s.toString().padStart(2, '0')}`;
+        btn.disabled = true; userInput.disabled = true; passInput.disabled = true;
+      } else {
+        lockoutEl.textContent = '';
+        btn.disabled = false; userInput.disabled = false; passInput.disabled = false;
       }
+    }
 
-      function encode(obj) { return btoa(JSON.stringify(obj)); }
-      function decode(str) { try { return JSON.parse(atob(str)); } catch { return null; } }
-      function get(key) { const d = localStorage.getItem(PREFIX + key); return d ? decode(d) : null; }
-      function set(key, value) { localStorage.setItem(PREFIX + key, encode(value)); }
-      function del(key) { localStorage.removeItem(PREFIX + key); }
+    if (isLocked()) { updateLockout(); setInterval(updateLockout, 1000); }
 
-      function getAttempts() {
-        const data = get('a');
-        if (!data) return { c: 0, t: 0, l: false };
-        if (data.l && Date.now() - data.t > CONFIG.lockoutMs) { del('a'); return { c: 0, t: 0, l: false }; }
-        return data;
-      }
+    form.addEventListener('submit', async e => {
+      e.preventDefault(); hideError();
+      if (isLocked()) { updateLockout(); return; }
 
-      function addAttempt() {
-        const data = getAttempts();
-        data.c++; data.t = Date.now();
-        if (data.c >= CONFIG.maxAttempts) data.l = true;
-        set('a', data);
-        return data;
-      }
+      const user = userInput.value.trim().toLowerCase();
+      const pass = passInput.value;
+      if (!user || !pass) { showError('All fields required'); return; }
 
-      function isLocked() {
-        const data = getAttempts();
-        if (!data.l) return false;
-        if (Date.now() - data.t > CONFIG.lockoutMs) { del('a'); return false; }
-        return true;
-      }
+      btn.disabled = true; btn.textContent = '...';
+      await new Promise(r => setTimeout(r, 250 + Math.random() * 250));
 
-      function lockoutRemaining() {
-        const data = getAttempts();
-        if (!data.l) return 0;
-        return Math.max(0, Math.ceil((CONFIG.lockoutMs - (Date.now() - data.t)) / 1000));
-      }
+      const userHash = await sha256(user);
+      const passHash = await sha256(pass);
+      const expected = CREDENTIALS[userHash];
 
-      function getFingerprint() {
-        const d = [navigator.language, screen.colorDepth, new Date().getTimezoneOffset(), navigator.hardwareConcurrency || 0, screen.width + 'x' + screen.height].join('|');
-        let h = 0;
-        for (let i = 0; i < d.length; i++) { h = ((h << 5) - h) + d.charCodeAt(i); h |= 0; }
-        return h.toString(36);
-      }
-
-      function createSession(user, hash) {
-        const session = {
-          u: user,
-          h: hash.substring(0, 16),
-          f: getFingerprint(),
-          t: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36),
-          c: Date.now(),
-          e: Date.now() + CONFIG.sessionMs
-        };
-        set('s', session);
-        del('a');
-        return session;
-      }
-
-      function validateSession() {
-        const s = get('s');
-        if (!s) return false;
-        if (Date.now() > s.e) { del('s'); return false; }
-        if (s.f !== getFingerprint()) { del('s'); return false; }
-        return true;
-      }
-
-      function showContent() {
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('contentScreen').classList.add('active');
-      }
-
-      function showLogin() {
-        document.getElementById('loginScreen').style.display = '';
-        document.getElementById('contentScreen').classList.remove('active');
-      }
-
-      // Check existing session
-      if (validateSession()) {
-        showContent();
-      }
-
-      // Logout
-      document.getElementById('logoutBtn').addEventListener('click', function() {
-        del('s');
-        showLogin();
-      });
-
-      // Login form
-      const form = document.getElementById('form');
-      const userInput = document.getElementById('user');
-      const passInput = document.getElementById('pass');
-      const errorEl = document.getElementById('error');
-      const lockoutEl = document.getElementById('lockout');
-      const btn = document.getElementById('btn');
-
-      function showError(msg) { errorEl.textContent = msg; errorEl.classList.add('show'); }
-      function hideError() { errorEl.classList.remove('show'); }
-
-      function updateLockout() {
-        const remaining = lockoutRemaining();
-        if (remaining > 0) {
-          const m = Math.floor(remaining / 60), s = remaining % 60;
-          lockoutEl.textContent = `Locked: ${m}:${s.toString().padStart(2, '0')}`;
-          btn.disabled = true; userInput.disabled = true; passInput.disabled = true;
+      if (expected && passHash === expected) {
+        createSession(user, userHash);
+        showGallery();
+      } else {
+        const attempts = addAttempt();
+        const remaining = CONFIG.maxAttempts - attempts.c;
+        if (attempts.l) {
+          showError('Too many attempts');
+          updateLockout();
+          setInterval(updateLockout, 1000);
         } else {
-          lockoutEl.textContent = '';
-          btn.disabled = false; userInput.disabled = false; passInput.disabled = false;
+          showError(`Access denied (${remaining} left)`);
         }
+        passInput.value = '';
+        btn.disabled = false; btn.textContent = 'Verify';
       }
+    });
 
-      if (isLocked()) { updateLockout(); setInterval(updateLockout, 1000); }
+    [userInput, passInput].forEach(el => el.addEventListener('input', hideError));
 
-      form.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        hideError();
-        if (isLocked()) { updateLockout(); return; }
+    // ── Content panels ──
 
-        const user = userInput.value.trim().toLowerCase();
-        const pass = passInput.value;
-        if (!user || !pass) { showError('All fields required'); return; }
+    let activePanel = null;
+    let isTransitioning = false;
 
-        btn.disabled = true; btn.textContent = '...';
-        await new Promise(r => setTimeout(r, 250 + Math.random() * 250));
+    window._openPanel = function(id) {
+      if (isTransitioning) return;
+      const panel = document.getElementById('panel-' + id);
+      if (!panel) return;
+      isTransitioning = true;
+      activePanel = panel;
+      panel.classList.remove('exiting');
+      panel.classList.add('active');
+      panel.scrollTop = 0;
+      setTimeout(() => { isTransitioning = false; }, 450);
+    };
 
-        const userHash = await sha256(user);
-        const passHash = await sha256(pass);
-        const expectedPassHash = CREDENTIALS[userHash];
-        let valid = false;
-        if (expectedPassHash) valid = passHash === expectedPassHash;
+    window._closeAllPanels = function() {
+      if (isTransitioning || !activePanel) return;
+      isTransitioning = true;
+      const panel = activePanel;
+      panel.classList.add('exiting');
+      setTimeout(() => {
+        panel.classList.remove('active', 'exiting');
+        activePanel = null;
+        isTransitioning = false;
+        window._returnCamera && window._returnCamera();
+      }, 350);
+    };
 
-        if (valid) {
-          createSession(user, userHash);
-          showContent();
-        } else {
-          const attempts = addAttempt();
-          const remaining = CONFIG.maxAttempts - attempts.c;
-          if (attempts.l) {
-            showError('Too many attempts');
-            updateLockout();
-            setInterval(updateLockout, 1000);
-          } else {
-            showError(`Access denied (${remaining} left)`);
+    window._hasActivePanel = () => !!activePanel;
+
+    document.querySelectorAll('[data-back]').forEach(b => b.addEventListener('click', () => window._closeAllPanels()));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && activePanel) window._closeAllPanels(); });
+
+    // ── Bottom bar: orbit toggle + info ──
+
+    window._orbitPaused = false;
+    const toggleOrbitBtn = document.getElementById('toggleOrbit');
+    const toggleInfoBtn = document.getElementById('toggleInfo');
+    const infoPanel = document.getElementById('infoPanel');
+
+    toggleOrbitBtn.addEventListener('click', () => {
+      window._orbitPaused = !window._orbitPaused;
+      toggleOrbitBtn.textContent = window._orbitPaused ? 'Play' : 'Pause';
+    });
+
+    let infoOpen = false;
+    toggleInfoBtn.addEventListener('click', () => {
+      infoOpen = !infoOpen;
+      infoPanel.classList.toggle('open', infoOpen);
+    });
+
+    document.addEventListener('pointerdown', e => {
+      if (infoOpen && !infoPanel.contains(e.target) && e.target !== toggleInfoBtn) {
+        infoOpen = false;
+        infoPanel.classList.remove('open');
+      }
+    });
+
+  })();
+  </script>
+
+  <!-- ═══ PDF.js CDN ═══ -->
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+
+  <!-- ═══ READER: Generic PDF reader for all sections ═══ -->
+  <script>
+  (function() {
+    'use strict';
+
+    var PDF_URL = 'resources/pdf/public_opinion.pdf';
+    var PDF_SCALE = 1.5;
+    var SPIN_START_Y = 75, SPIN_DECAY = 1.6, SPIN_X_AMP = 6, SPIN_Z_AMP = 3;
+    var HL_DELAY = 800, HL_DURATION = 700, HL_HEIGHT = 17, TYPE_SPEED = 18;
+
+    // ══════════════════════════════════════════════════════
+    // SECTION DATA — each key matches data-reader attribute
+    // ══════════════════════════════════════════════════════
+
+    var SECTIONS = {
+      section2: {
+        pdfPage: 2,
+        slides: [
+          {
+            color: 'rgba(255, 220, 50, 0.22)',
+            highlights: [
+              { y: 0.8011, x: 0.1176, w: 0.7602 },
+              { y: 0.8182, x: 0.1176, w: 0.7584 },
+              { y: 0.8352, x: 0.1176, w: 0.7458 },
+              { y: 0.8523, x: 0.1176, w: 0.7476 },
+              { y: 0.8693, x: 0.1176, w: 0.7304 },
+              { y: 0.8864, x: 0.1176, w: 0.7356 },
+            ],
+            text: [
+              'This is the textbook\'s introduction to political socialization. While our beliefs and attitudes form during childhood, we are simultaneously being socialized: learning from many sources about the society we live in and how to behave in it.',
+              'The key definition is in the middle: political socialization is the process by which we are trained to understand and join a country\'s political world. It starts very young, through watching a parent vote, hearing candidates on television, or seeing adults honor the flag.',
+            ]
+          },
+          {
+            color: 'rgba(100, 200, 255, 0.22)',
+            highlights: [
+              { y: 0.5435, x: 0.1176, w: 0.7347 },
+              { y: 0.5648, x: 0.1176, w: 0.7547 },
+              { y: 0.5818, x: 0.1176, w: 0.7141 },
+              { y: 0.5989, x: 0.1176, w: 0.7542 },
+              { y: 0.6159, x: 0.1176, w: 0.7224 },
+              { y: 0.6330, x: 0.1176, w: 0.0575 },
+            ],
+            text: [
+              'This paragraph asks where opinions come from. The answer: most citizens base their political opinions on beliefs and attitudes that begin forming in childhood. Beliefs are closely held ideas that support our values and expectations about life and politics.',
+              'The example given is the belief in equality, liberty, freedom, and privacy. A person may acquire it by growing up in the United States or by coming from a country that did not afford those principles. The belief feels universal, but the origin is specific.',
+            ]
+          },
+          {
+            color: 'rgba(255, 140, 180, 0.22)',
+            highlights: [
+              { y: 0.6580, x: 0.1176, w: 0.7580 },
+              { y: 0.6750, x: 0.1176, w: 0.7550 },
+              { y: 0.6920, x: 0.1176, w: 0.2789 },
+              { y: 0.7170, x: 0.1176, w: 0.7626 },
+              { y: 0.7341, x: 0.1176, w: 0.7184 },
+              { y: 0.7511, x: 0.1176, w: 0.5235 },
+            ],
+            text: [
+              'The highlighted text distinguishes attitudes from beliefs. Attitudes are the preferences we form based on our life experiences and values. A person who has suffered racism may develop skepticism toward authority figures.',
+              'Over time, these beliefs and attitudes crystallize into norms: accepted ideas about what should happen in society or what is right for the government to do. Attitudes and beliefs form the foundation for opinions. The opinion is the output. The socialization is the input.',
+            ]
           }
-          passInput.value = '';
-          btn.disabled = false; btn.textContent = 'Verify';
+        ]
+      },
+
+      section3: {
+        pdfPage: 5,
+        slides: [
+          {
+            color: 'rgba(255, 180, 80, 0.22)',
+            highlights: [
+              { y: 0.0696, x: 0.1176, w: 0.7598 },
+              { y: 0.0909, x: 0.1176, w: 0.7462 },
+              { y: 0.1037, x: 0.1176, w: 0.7352 },
+              { y: 0.1250, x: 0.1176, w: 0.7303 },
+              { y: 0.1420, x: 0.1176, w: 0.5824 },
+            ],
+            text: [
+              'The highlighted passage introduces the concept of diffuse support: a high level of stability in politics, acceptance of the government as legitimate, and a common goal of preserving the system. These traits keep a country steady even during upheaval.',
+              'But diffuse support does not happen on its own. It requires agents of political socialization, which is what the rest of this section examines: who teaches us to think politically, and how.',
+            ]
+          },
+          {
+            color: 'rgba(130, 220, 130, 0.22)',
+            highlights: [
+              { y: 0.2943, x: 0.1176, w: 0.7519 },
+              { y: 0.3071, x: 0.1176, w: 0.7488 },
+              { y: 0.3284, x: 0.1176, w: 0.7518 },
+              { y: 0.3455, x: 0.1176, w: 0.7438 },
+              { y: 0.3612, x: 0.1176, w: 0.7305 },
+            ],
+            text: [
+              'The highlighted paragraph presents the evidence. Both early and recent findings confirm that children adopt the political beliefs and attitudes of their parents.',
+              'Democratic parents tend to produce Democratic children. Republican parents produce Republican children. Households without consistent loyalty produce independents. Party affiliation is inherited before it is chosen.',
+            ]
+          },
+          {
+            color: 'rgba(180, 140, 255, 0.22)',
+            highlights: [
+              { y: 0.8420, x: 0.1176, w: 0.7577 },
+              { y: 0.8590, x: 0.1176, w: 0.7634 },
+              { y: 0.8761, x: 0.1176, w: 0.7220 },
+              { y: 0.8931, x: 0.1176, w: 0.7486 },
+            ],
+            text: [
+              'School formalizes what family introduces. The early education is broad and thematic, covering explorers, presidents, victories, and symbols, but the lessons are idealized and avoid the specific problems tied to historical figures.',
+              'The textbook gives a clear example: Washington is taught as a founder, but teachers are unlikely to mention that he enslaved people. The socialization is selective. What gets included shapes the belief; what gets left out shapes it just as much.',
+            ]
+          }
+        ]
+      },
+
+      section4: {
+        pdfPage: 3,
+        slides: [
+          {
+            color: 'rgba(255, 100, 100, 0.22)',
+            highlights: [
+              { y: 0.6200, x: 0.1176, w: 0.7030 },
+              { y: 0.6370, x: 0.1176, w: 0.7506 },
+              { y: 0.6498, x: 0.1176, w: 0.7443 },
+              { y: 0.6711, x: 0.1176, w: 0.7512 },
+              { y: 0.6881, x: 0.1176, w: 0.7401 },
+              { y: 0.7009, x: 0.1176, w: 0.7626 },
+            ],
+            text: [
+              'This passage covers the full arc from crisis to realignment. An economic catastrophe threatens personal safety, ideology shifts, and the party in power collapses. The Republican majority in Congress during the 1920s disappeared entirely after the 1929 crash.',
+              'What makes this remarkable is the speed. The GOP had held wide margins for years. Within one election cycle, voters abandoned it and elected Democrats to the presidency and both chambers. The Depression did not just hurt the economy. It broke the political consensus that had existed for a generation.',
+            ]
+          },
+          {
+            color: 'rgba(100, 180, 255, 0.22)',
+            highlights: [
+              { y: 0.5268, x: 0.1176, w: 0.7564 },
+              { y: 0.5438, x: 0.1176, w: 0.7474 },
+              { y: 0.5566, x: 0.1176, w: 0.7241 },
+            ],
+            text: [
+              'The highlighted passage states the rule and then immediately gives the exception. Beliefs and attitudes resist change, but profound events can override them. The specific example: family members of 9/11 victims became more Republican and more politically active after the attacks.',
+              'This is important because it shows that political identity is not purely inherited or rational. A single traumatic event can rewrite years of accumulated socialization.',
+            ]
+          },
+          {
+            color: 'rgba(255, 200, 100, 0.22)',
+            highlights: [
+              { y: 0.7813, x: 0.1176, w: 0.7564 },
+              { y: 0.7941, x: 0.1176, w: 0.6953 },
+              { y: 0.8154, x: 0.1176, w: 0.7393 },
+              { y: 0.8325, x: 0.1176, w: 0.7615 },
+              { y: 0.8495, x: 0.1176, w: 0.7311 },
+              { y: 0.8665, x: 0.1176, w: 0.7200 },
+              { y: 0.8836, x: 0.1176, w: 0.6978 },
+              { y: 0.9006, x: 0.1176, w: 0.6905 },
+            ],
+            text: [
+              'This is the full passage introducing the Pew longitudinal study. It explains the methodology: polling both parties over twenty-five years using value statements about government regulation, labor unions, and equality of opportunity.',
+              'The outcome is covered on the next page: a gap that started at 10 percent in 1987 and had reached 18 percent by 2012. A 2019 follow-up placed it at 39 percent. The parties are not just disagreeing more. They are answering the same questions in fundamentally opposite ways.',
+            ]
+          }
+        ]
+      }
+    };
+
+    // ══════════════════════════════════════════════════════
+    // GENERIC READER ENGINE
+    // ══════════════════════════════════════════════════════
+
+    var pdfDoc = null;       // shared pdf.js document
+    var pdfReady = false;
+    var renderedPages = {};  // cache: pageNum → { canvas, ctx }
+
+    // Per-instance state
+    var R = null; // active reader instance
+
+    function createInstance(sectionId) {
+      var stageEl = document.querySelector('[data-reader="' + sectionId + '"]');
+      if (!stageEl) return null;
+      return {
+        id: sectionId,
+        cfg: SECTIONS[sectionId],
+        stage: stageEl,
+        loading: stageEl.querySelector('.reader-loading'),
+        row: stageEl.querySelector('.reader-row'),
+        pdfCard: stageEl.querySelector('.pdf-card'),
+        pdfCanvas: stageEl.querySelector('.r-pdf'),
+        hlCanvas: stageEl.querySelector('.r-hl'),
+        hlCtx: null,
+        typedEl: stageEl.querySelector('.typed-content'),
+        nav: stageEl.querySelector('.reader-nav'),
+        prevBtn: stageEl.querySelector('.nav-prev'),
+        nextBtn: stageEl.querySelector('.nav-next'),
+        counter: stageEl.querySelector('.nav-counter'),
+        active: false,
+        phase: 'idle',
+        currentSlide: 0,
+        spinStart: 0,
+        hlAnimStart: 0,
+        typeTimer: null,
+        typeGen: 0,
+        rafId: null,
+      };
+    }
+
+    // ── Hook into panel system ──
+    var origOpen = window._openPanel;
+    window._openPanel = function(id) {
+      origOpen(id);
+      if (SECTIONS[id]) setTimeout(function() { initReader(id); }, 120);
+    };
+
+    var origClose = window._closeAllPanels;
+    window._closeAllPanels = function() {
+      if (R && R.active) cleanup();
+      origClose();
+    };
+
+    // ── PDF loading ──
+    async function ensurePdf() {
+      if (pdfReady) return;
+      var lib = window.pdfjsLib;
+      if (!lib) throw new Error('pdf.js not loaded');
+      lib.GlobalWorkerOptions.workerSrc =
+        'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+      pdfDoc = await lib.getDocument(PDF_URL).promise;
+      pdfReady = true;
+    }
+
+    async function renderPage(inst) {
+      var pageNum = inst.cfg.pdfPage;
+      var page = await pdfDoc.getPage(pageNum);
+      var vp = page.getViewport({ scale: PDF_SCALE });
+
+      inst.pdfCanvas.width = vp.width;
+      inst.pdfCanvas.height = vp.height;
+      inst.hlCanvas.width = vp.width;
+      inst.hlCanvas.height = vp.height;
+      inst.hlCtx = inst.hlCanvas.getContext('2d');
+
+      await page.render({
+        canvasContext: inst.pdfCanvas.getContext('2d'),
+        viewport: vp
+      }).promise;
+    }
+
+    // ── Init ──
+    async function initReader(sectionId) {
+      // Cleanup previous reader if any
+      if (R && R.active) cleanup();
+
+      R = createInstance(sectionId);
+      if (!R) return;
+
+      R.loading.style.display = '';
+      R.row.style.display = 'none';
+      R.nav.style.display = 'none';
+
+      try {
+        await ensurePdf();
+        await renderPage(R);
+      } catch (e) {
+        console.error('PDF load failed:', e);
+        R.loading.textContent = 'Error: ' + (e.message || e);
+        return;
+      }
+
+      R.currentSlide = 0;
+      R.active = true;
+      R.hlCtx.clearRect(0, 0, R.hlCanvas.width, R.hlCanvas.height);
+      R.typedEl.innerHTML = '';
+
+      R.loading.style.display = 'none';
+      R.row.style.display = '';
+      R.nav.style.display = '';
+      updateNav();
+
+      R.prevBtn.onclick = function() { goSlide(R.currentSlide - 1); };
+      R.nextBtn.onclick = function() { navigateNext(); };
+
+      // Always play intro
+      R.phase = 'spin';
+      R.stage.classList.remove('phase-split');
+      R.pdfCard.style.transform = 'rotateY(75deg) rotateX(4deg)';
+      R.spinStart = performance.now();
+      tick();
+    }
+
+    // ── Spin intro ──
+    function tick() {
+      if (!R || !R.active) return;
+
+      var panel = document.getElementById('panel-' + R.id);
+      if (!panel || !panel.classList.contains('active')) { cleanup(); return; }
+
+      var now = performance.now();
+
+      if (R.phase === 'spin') {
+        var elapsed = (now - R.spinStart) / 1000;
+        var decay = Math.exp(-SPIN_DECAY * elapsed);
+
+        R.pdfCard.style.transform =
+          'rotateY(' + (SPIN_START_Y * decay) + 'deg) rotateX(' +
+          (SPIN_X_AMP * decay * Math.sin(elapsed * 2.5)) + 'deg) rotateZ(' +
+          (SPIN_Z_AMP * decay * Math.sin(elapsed * 1.8 + 1)) + 'deg)';
+
+        var hlElapsed = now - R.spinStart - HL_DELAY;
+        if (hlElapsed > 0) {
+          var slide = R.cfg.slides[0];
+          var total = slide.highlights.length * HL_DURATION;
+          var idx = hlElapsed >= total ? slide.highlights.length : Math.floor(hlElapsed / HL_DURATION);
+          var prog = hlElapsed >= total ? 1 : (hlElapsed % HL_DURATION) / HL_DURATION;
+          drawHLProg(slide, idx, prog);
+        }
+
+        var s0 = R.cfg.slides[0];
+        if (hlElapsed >= s0.highlights.length * HL_DURATION && decay < 0.015) {
+          R.pdfCard.style.transform = 'rotateY(0deg)';
+          R.phase = 'split';
+          R.stage.classList.add('phase-split');
+          drawSlideHL(0);
+          setTimeout(function() { startTyping(0); }, 700);
+          return;
+        }
+      }
+
+      R.rafId = requestAnimationFrame(tick);
+    }
+
+    // ── Highlights ──
+    function drawHLProg(slide, doneIdx, progress) {
+      var ctx = R.hlCtx, cw = R.hlCanvas.width, ch = R.hlCanvas.height;
+      ctx.clearRect(0, 0, cw, ch);
+      ctx.fillStyle = slide.color;
+      for (var i = 0; i < doneIdx && i < slide.highlights.length; i++) {
+        var h = slide.highlights[i];
+        ctx.fillRect(h.x * cw, h.y * ch - 2, h.w * cw, HL_HEIGHT);
+      }
+      if (doneIdx < slide.highlights.length) {
+        var hc = slide.highlights[doneIdx];
+        ctx.fillRect(hc.x * cw, hc.y * ch - 2, hc.w * cw * Math.min(progress, 1), HL_HEIGHT);
+      }
+    }
+
+    function drawSlideHL(idx) {
+      var slide = R.cfg.slides[idx];
+      var ctx = R.hlCtx, cw = R.hlCanvas.width, ch = R.hlCanvas.height;
+      ctx.clearRect(0, 0, cw, ch);
+      ctx.fillStyle = slide.color;
+      slide.highlights.forEach(function(h) {
+        ctx.fillRect(h.x * cw, h.y * ch - 2, h.w * cw, HL_HEIGHT);
+      });
+    }
+
+    // ── Slide animation (HL + typing parallel) ──
+    function animateSlide(idx) {
+      var slide = R.cfg.slides[idx];
+      R.hlAnimStart = performance.now();
+      R.phase = 'animating';
+      startTyping(idx);
+
+      function hlTick() {
+        if (!R || R.phase !== 'animating' || R.currentSlide !== idx) return;
+        var elapsed = performance.now() - R.hlAnimStart;
+        var total = slide.highlights.length * HL_DURATION;
+        if (elapsed >= total) { drawSlideHL(idx); return; }
+        drawHLProg(slide, Math.floor(elapsed / HL_DURATION), (elapsed % HL_DURATION) / HL_DURATION);
+        R.rafId = requestAnimationFrame(hlTick);
+      }
+      hlTick();
+    }
+
+    // ── Typing ──
+    function startTyping(slideIdx) {
+      if (R.typeTimer) { clearInterval(R.typeTimer); R.typeTimer = null; }
+
+      var slide = R.cfg.slides[slideIdx];
+      var pIdx = 0, cIdx = 0;
+      var gen = ++R.typeGen;
+
+      R.typedEl.innerHTML = '';
+      var p = document.createElement('p');
+      p.appendChild(document.createElement('span'));
+      p.lastChild.className = 'cursor-blink';
+      R.typedEl.appendChild(p);
+
+      R.typeTimer = setInterval(function() {
+        if (!R || gen !== R.typeGen) { clearInterval(R.typeTimer); return; }
+
+        if (pIdx >= slide.text.length) {
+          clearInterval(R.typeTimer); R.typeTimer = null;
+          var c = R.typedEl.querySelector('.cursor-blink');
+          if (c) c.remove();
+          R.phase = 'ready';
+          updateNav();
+          return;
+        }
+
+        var text = slide.text[pIdx];
+        if (cIdx >= text.length) {
+          pIdx++; cIdx = 0;
+          if (pIdx < slide.text.length) {
+            var c = R.typedEl.querySelector('.cursor-blink');
+            if (c) c.remove();
+            var np = document.createElement('p');
+            np.appendChild(document.createElement('span'));
+            np.lastChild.className = 'cursor-blink';
+            R.typedEl.appendChild(np);
+          }
+          return;
+        }
+
+        var cp = R.typedEl.lastElementChild;
+        var cur = cp.querySelector('.cursor-blink');
+        cp.insertBefore(document.createTextNode(text[cIdx]), cur);
+        cIdx++;
+      }, TYPE_SPEED);
+    }
+
+    // ── Navigation ──
+    function navigateNext() {
+      if (R.phase === 'spin') {
+        stopAnim();
+        R.pdfCard.style.transform = 'rotateY(0deg)';
+        R.stage.classList.add('phase-split');
+        drawSlideHL(0);
+        R.currentSlide = 0;
+        updateNav();
+        startTyping(0);
+        R.phase = 'animating';
+        return;
+      }
+      if (R.currentSlide < R.cfg.slides.length - 1) goSlide(R.currentSlide + 1);
+    }
+
+    function goSlide(idx) {
+      if (!R || idx < 0 || idx >= R.cfg.slides.length) return;
+      stopAnim();
+      R.currentSlide = idx;
+      updateNav();
+      R.stage.classList.add('phase-split');
+      R.pdfCard.style.transform = 'rotateY(0deg)';
+      animateSlide(idx);
+    }
+
+    function updateNav() {
+      if (!R) return;
+      var len = R.cfg.slides.length;
+      R.counter.textContent = (R.currentSlide + 1) + ' / ' + len;
+      R.prevBtn.classList.toggle('disabled', R.currentSlide === 0);
+      R.nextBtn.classList.toggle('disabled', R.currentSlide === len - 1 && R.phase === 'ready');
+    }
+
+    function stopAnim() {
+      if (!R) return;
+      if (R.rafId) { cancelAnimationFrame(R.rafId); R.rafId = null; }
+      if (R.typeTimer) { clearInterval(R.typeTimer); R.typeTimer = null; }
+    }
+
+    function cleanup() {
+      if (!R) return;
+      stopAnim();
+      R.active = false;
+      R.phase = 'idle';
+      R = null;
+    }
+
+  })();
+  </script>
+
+  <!-- ═══ SCRIPT 2: Three.js 3D Gallery ═══ -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script type="module">
+    let THREE, OrbitControls, EffectComposer, RenderPass, UnrealBloomPass;
+
+    try {
+      THREE = await import('three');
+      ({ OrbitControls } = await import('three/addons/controls/OrbitControls.js'));
+      ({ EffectComposer } = await import('three/addons/postprocessing/EffectComposer.js'));
+      ({ RenderPass } = await import('three/addons/postprocessing/RenderPass.js'));
+      ({ UnrealBloomPass } = await import('three/addons/postprocessing/UnrealBloomPass.js'));
+    } catch (e) {
+      console.error('Failed to load Three.js:', e);
+      throw e;
+    }
+
+    let scene, camera, renderer, composer, controls;
+    let raycaster, pointer;
+    let hoveredExhibit = null;
+    let animatingCamera = false;
+    let galleryReady = false;
+    let groundMesh, gridHelper;
+    const clock = new THREE.Clock();
+    const exhibitLabel = document.getElementById('exhibitLabel');
+    let hoverCheckFrame = 0;
+
+    const CENTER_EXHIBIT = { id: 'section1', label: 'Reflection', color: 0xcc88ff };
+
+    const ORBITING = [
+      { id: 'section2', label: 'Origin of Belief', color: 0xeeeeff, radius: 2.4, speed: 0.18, phase: 0 },
+      { id: 'section3', label: 'Agents of Influence', color: 0xffcc66, radius: 3.6, speed: 0.12, phase: Math.PI * 2 / 3 },
+      { id: 'section4', label: 'Events & Polarization', color: 0xaaddff, radius: 4.8, speed: 0.08, phase: Math.PI * 4 / 3 },
+    ];
+
+    const allExhibits = [];
+    const overviewPos = new THREE.Vector3(0, 6, 8);
+    const overviewTarget = new THREE.Vector3(0, 0.3, 0);
+
+    function tryInit() {
+      if (galleryReady) return;
+      if (!document.getElementById('galleryScreen').classList.contains('active')) return;
+
+      requestAnimationFrame(() => {
+        if (galleryReady) return;
+        try {
+          initGallery();
+          galleryReady = true;
+        } catch (e) {
+          console.error('Gallery init failed:', e);
         }
       });
+    }
 
-      [userInput, passInput].forEach(el => el.addEventListener('input', hideError));
-    })();
+    tryInit();
+    window.addEventListener('gallery-open', tryInit);
+
+    function initGallery() {
+      const canvas = document.getElementById('galleryCanvas');
+      const w = window.innerWidth, h = window.innerHeight;
+
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+      renderer.setSize(w, h);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.2;
+
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x050508);
+      scene.fog = new THREE.FogExp2(0x050508, 0.035);
+
+      camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 80);
+      camera.position.copy(overviewPos);
+
+      controls = new OrbitControls(camera, canvas);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.04;
+      controls.target.copy(overviewTarget);
+      controls.autoRotate = true;
+      controls.autoRotateSpeed = 0.4;
+      controls.minDistance = 3;
+      controls.maxDistance = 18;
+      controls.maxPolarAngle = Math.PI / 2 - 0.08;
+      controls.minPolarAngle = 0.3;
+      controls.rotateSpeed = 0.6;
+      controls.zoomSpeed = 0.7;
+
+      raycaster = new THREE.Raycaster();
+      pointer = new THREE.Vector2(-999, -999);
+
+      // Lighting
+      scene.add(new THREE.AmbientLight(0x333344, 0.8));
+      scene.add(new THREE.HemisphereLight(0x8899bb, 0x111111, 0.5));
+
+      const keyLight = new THREE.DirectionalLight(0xeeeeff, 0.7);
+      keyLight.position.set(2, 8, 4);
+      scene.add(keyLight);
+
+      // Ground
+      groundMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(40, 40),
+        new THREE.MeshPhysicalMaterial({ color: 0x0a0a0e, metalness: 0.8, roughness: 0.55 })
+      );
+      groundMesh.rotation.x = -Math.PI / 2;
+      scene.add(groundMesh);
+
+      gridHelper = new THREE.GridHelper(40, 40, 0x181820, 0x181820);
+      gridHelper.material.opacity = 0.08;
+      gridHelper.material.transparent = true;
+      gridHelper.position.y = 0.002;
+      scene.add(gridHelper);
+
+      // Orbit rings
+      ORBITING.forEach(orb => scene.add(createOrbitRing(orb.radius, orb.color)));
+
+      // Center exhibit: Mobius
+      const centerMesh = createMobius(CENTER_EXHIBIT.color);
+      centerMesh.position.set(0, 1.0, 0);
+      centerMesh.userData = { id: CENTER_EXHIBIT.id, label: CENTER_EXHIBIT.label };
+      scene.add(centerMesh);
+
+      const centerLight = new THREE.PointLight(CENTER_EXHIBIT.color, 3, 8);
+      centerLight.position.set(0, 2.5, 0);
+      scene.add(centerLight);
+
+      allExhibits.push({ mesh: centerMesh, data: CENTER_EXHIBIT, light: centerLight, isCenter: true });
+      addHitbox(centerMesh, 1.0);
+
+      // Orbiting exhibits
+      ORBITING.forEach((orb, i) => {
+        let mesh;
+        if (i === 0) mesh = createIcosahedron();
+        else if (i === 1) mesh = createTori();
+        else mesh = createOctaCluster();
+
+        const angle = orb.phase;
+        mesh.position.set(Math.cos(angle) * orb.radius, 0.8, Math.sin(angle) * orb.radius);
+        mesh.userData = { id: orb.id, label: orb.label, orbitIndex: i };
+        scene.add(mesh);
+        addHitbox(mesh, 0.8);
+
+        const light = new THREE.PointLight(orb.color, 2.5, 6);
+        light.position.copy(mesh.position).add(new THREE.Vector3(0, 1.2, 0));
+        scene.add(light);
+
+        allExhibits.push({ mesh, data: orb, light, isCenter: false, orbitIndex: i });
+      });
+
+      // Post-processing
+      composer = new EffectComposer(renderer);
+      composer.addPass(new RenderPass(scene, camera));
+      composer.addPass(new UnrealBloomPass(new THREE.Vector2(w, h), 0.6, 0.3, 0.7));
+
+      // Track drag vs click
+      let pointerDownPos = null;
+      const DRAG_THRESHOLD = 6;
+
+      canvas.addEventListener('pointerdown', e => {
+        pointerDownPos = { x: e.clientX, y: e.clientY };
+      }, { passive: true });
+
+      canvas.addEventListener('pointermove', e => {
+        pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
+        pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      }, { passive: true });
+
+      canvas.addEventListener('pointerup', e => {
+        if (!pointerDownPos) return;
+        const dx = e.clientX - pointerDownPos.x;
+        const dy = e.clientY - pointerDownPos.y;
+        const wasDrag = Math.sqrt(dx * dx + dy * dy) > DRAG_THRESHOLD;
+        pointerDownPos = null;
+        if (wasDrag) return;
+        if (animatingCamera || window._hasActivePanel()) return;
+        if (hoveredExhibit) animateToExhibit(hoveredExhibit);
+      });
+
+      window.addEventListener('resize', () => {
+        if (!renderer) return;
+        const w = window.innerWidth, h = window.innerHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+        composer.setSize(w, h);
+      });
+
+      animate();
+    }
+
+    // ── Hitbox ──
+
+    function addHitbox(group, radius) {
+      const hitMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(radius, 8, 6),
+        new THREE.MeshBasicMaterial({ visible: false })
+      );
+      hitMesh.userData = { isHitbox: true };
+      group.add(hitMesh);
+    }
+
+    // ── Geometry ──
+
+    function createOrbitRing(radius, color) {
+      const points = [];
+      for (let i = 0; i < 96; i++) {
+        const a = (i / 96) * Math.PI * 2;
+        points.push(new THREE.Vector3(Math.cos(a) * radius, 0.003, Math.sin(a) * radius));
+      }
+      return new THREE.Points(
+        new THREE.BufferGeometry().setFromPoints(points),
+        new THREE.PointsMaterial({ color, size: 0.03, transparent: true, opacity: 0.3, sizeAttenuation: true })
+      );
+    }
+
+    function createMobius(color) {
+      const group = new THREE.Group();
+      const segs = 80, width = 0.2, radius = 0.5;
+      const verts = [], idx = [], uvs = [];
+
+      for (let i = 0; i <= segs; i++) {
+        const t = (i / segs) * Math.PI * 2;
+        for (let j = 0; j <= 1; j++) {
+          const s = (j - 0.5) * width, ht = t / 2;
+          verts.push(
+            (radius + s * Math.cos(ht)) * Math.cos(t),
+            s * Math.sin(ht),
+            (radius + s * Math.cos(ht)) * Math.sin(t)
+          );
+          uvs.push(i / segs, j);
+        }
+      }
+      for (let i = 0; i < segs; i++) {
+        const a = i * 2, b = a + 1, c = a + 2, d = a + 3;
+        idx.push(a, b, c, b, d, c);
+      }
+
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+      geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+      geo.setIndex(idx);
+      geo.computeVertexNormals();
+
+      group.add(new THREE.Mesh(geo, new THREE.MeshPhysicalMaterial({
+        color: 0x1a1a22, metalness: 0.6, roughness: 0.4, side: THREE.DoubleSide
+      })));
+
+      const wire = new THREE.Mesh(geo.clone(), new THREE.MeshBasicMaterial({
+        color, wireframe: true, transparent: true, opacity: 0.25, side: THREE.DoubleSide
+      }));
+      wire.scale.setScalar(1.03);
+      group.add(wire);
+      return group;
+    }
+
+    function createIcosahedron() {
+      const group = new THREE.Group();
+      group.add(new THREE.Mesh(
+        new THREE.IcosahedronGeometry(0.45, 0),
+        new THREE.MeshPhysicalMaterial({
+          color: 0xccddff, metalness: 0.15, roughness: 0.05,
+          transmission: 0.5, thickness: 0.4, clearcoat: 1.0,
+          clearcoatRoughness: 0.1, transparent: true, opacity: 0.9
+        })
+      ));
+      group.add(new THREE.Mesh(
+        new THREE.IcosahedronGeometry(0.47, 0),
+        new THREE.MeshBasicMaterial({ color: 0xeeeeff, wireframe: true, transparent: true, opacity: 0.12 })
+      ));
+      return group;
+    }
+
+    function createTori() {
+      const group = new THREE.Group();
+      const mat = new THREE.MeshPhysicalMaterial({ color: 0xddaa44, metalness: 0.9, roughness: 0.2, clearcoat: 0.4 });
+      const radii = [0.22, 0.32, 0.42];
+      const tube = 0.03;
+      for (let i = 0; i < 3; i++) {
+        const t = new THREE.Mesh(new THREE.TorusGeometry(radii[i], tube, 10, 36), mat);
+        t.rotation.x = (i * Math.PI) / 3;
+        t.rotation.y = (i * Math.PI) / 5;
+        group.add(t);
+      }
+      return group;
+    }
+
+    function createOctaCluster() {
+      const group = new THREE.Group();
+      const mat = new THREE.MeshPhysicalMaterial({
+        color: 0xaaddff, metalness: 0.2, roughness: 0.08,
+        transmission: 0.35, thickness: 0.3, clearcoat: 1.0,
+        transparent: true, opacity: 0.85
+      });
+      [[0,0,0],[0.35,0.25,0.2],[-0.25,0.2,-0.2],[0.2,-0.2,0.25],[-0.2,-0.15,-0.25]].forEach((p, i) => {
+        const m = new THREE.Mesh(new THREE.OctahedronGeometry(i === 0 ? 0.28 : 0.16, 0), mat);
+        m.position.set(...p);
+        m.rotation.set(i * 1.1, i * 0.7, i * 0.5);
+        group.add(m);
+      });
+      return group;
+    }
+
+    // ── Hover ──
+
+    function checkHover() {
+      if (animatingCamera || window._hasActivePanel()) {
+        exhibitLabel.classList.remove('visible');
+        document.body.classList.remove('exhibit-hover');
+        hoveredExhibit = null;
+        return;
+      }
+
+      raycaster.setFromCamera(pointer, camera);
+      const meshes = [];
+      allExhibits.forEach(ex => ex.mesh.traverse(c => { if (c.isMesh) meshes.push(c); }));
+
+      const hits = raycaster.intersectObjects(meshes, false);
+      let found = null;
+
+      if (hits.length > 0) {
+        let obj = hits[0].object;
+        while (obj) {
+          if (obj.userData && obj.userData.id) {
+            found = allExhibits.find(ex => ex.data.id === obj.userData.id);
+            break;
+          }
+          obj = obj.parent;
+        }
+      }
+
+      if (found !== hoveredExhibit) {
+        hoveredExhibit = found;
+        if (found) {
+          document.body.classList.add('exhibit-hover');
+          exhibitLabel.textContent = found.data.label;
+          exhibitLabel.classList.add('visible');
+        } else {
+          document.body.classList.remove('exhibit-hover');
+          exhibitLabel.classList.remove('visible');
+        }
+      }
+
+      if (hoveredExhibit) {
+        const pos = new THREE.Vector3();
+        hoveredExhibit.mesh.getWorldPosition(pos);
+        pos.y += 1.2;
+        pos.project(camera);
+        exhibitLabel.style.left = ((pos.x * 0.5 + 0.5) * window.innerWidth) + 'px';
+        exhibitLabel.style.top = ((-pos.y * 0.5 + 0.5) * window.innerHeight) + 'px';
+      }
+    }
+
+    // ── Scene time (freezable) ──
+
+    let sceneTime = 0;
+    let lastRealTime = 0;
+    let sceneFrozen = false;
+
+    function updateSceneTime() {
+      const now = clock.getElapsedTime();
+      if (!sceneFrozen && !window._orbitPaused) {
+        sceneTime += now - lastRealTime;
+      }
+      lastRealTime = now;
+    }
+
+    // ── Camera animation ──
+
+    let camAnimStart = null;
+    const camAnimDur = 1200;
+    const camA = { pos: new THREE.Vector3(), tgt: new THREE.Vector3() };
+    const camB = { pos: new THREE.Vector3(), tgt: new THREE.Vector3() };
+    let camAnimDir = 1;
+    let camAnimCb = null;
+
+    function easeInOut(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3) / 2; }
+
+    function animateToExhibit(exhibit) {
+      animatingCamera = true;
+      sceneFrozen = true;
+      controls.enabled = false;
+      controls.autoRotate = false;
+
+      camA.pos.copy(camera.position);
+      camA.tgt.copy(controls.target);
+
+      const ep = new THREE.Vector3();
+      exhibit.mesh.getWorldPosition(ep);
+      const dir = new THREE.Vector3().subVectors(camera.position, ep).normalize();
+      camB.pos.copy(ep).addScaledVector(dir, 2.0);
+      camB.pos.y = Math.max(ep.y + 0.6, camB.pos.y);
+      camB.tgt.copy(ep);
+
+      camAnimDir = 1;
+      camAnimStart = performance.now();
+      camAnimCb = () => window._openPanel(exhibit.data.id);
+      exhibitLabel.classList.remove('visible');
+    }
+
+    window._returnCamera = function() {
+      animatingCamera = true;
+      camAnimDir = -1;
+      camAnimStart = performance.now();
+      camAnimCb = () => {
+        controls.enabled = true;
+        if (!window._orbitPaused) controls.autoRotate = true;
+        animatingCamera = false;
+        sceneFrozen = false;
+      };
+    };
+
+    function updateCamAnim() {
+      if (camAnimStart === null) return;
+      let t = Math.min((performance.now() - camAnimStart) / camAnimDur, 1);
+      t = easeInOut(t);
+
+      if (camAnimDir === 1) {
+        camera.position.lerpVectors(camA.pos, camB.pos, t);
+        controls.target.lerpVectors(camA.tgt, camB.tgt, t);
+      } else {
+        camera.position.lerpVectors(camB.pos, camA.pos, t);
+        controls.target.lerpVectors(camB.tgt, camA.tgt, t);
+      }
+
+      if (t >= 1) {
+        camAnimStart = null;
+        if (camAnimCb) { camAnimCb(); camAnimCb = null; }
+      }
+    }
+
+    // ── Main loop ──
+
+    function animate() {
+      requestAnimationFrame(animate);
+      updateSceneTime();
+      const t = sceneTime;
+
+      allExhibits.forEach(ex => {
+        if (ex.isCenter) {
+          ex.mesh.rotation.y = t * 0.15;
+          ex.mesh.rotation.z = Math.sin(t * 0.25) * 0.1;
+        } else {
+          const orb = ORBITING[ex.orbitIndex];
+          const angle = orb.phase + t * orb.speed;
+          const x = Math.cos(angle) * orb.radius;
+          const z = Math.sin(angle) * orb.radius;
+          ex.mesh.position.x = x;
+          ex.mesh.position.z = z;
+          ex.mesh.position.y = 0.8 + Math.sin(t * 0.6 + ex.orbitIndex * 2) * 0.08;
+          ex.light.position.set(x, ex.mesh.position.y + 1.2, z);
+
+          if (ex.orbitIndex === 0) {
+            ex.mesh.rotation.y = t * 0.25;
+            ex.mesh.rotation.x = Math.sin(t * 0.15) * 0.08;
+          } else if (ex.orbitIndex === 1) {
+            ex.mesh.children.forEach((c, j) => {
+              if (c.userData.isHitbox) return;
+              const tiltBase = (j * Math.PI) / 3;
+              c.rotation.x = tiltBase + t * (0.4 + j * 0.15);
+              c.rotation.y = t * (0.25 + j * 0.1);
+              c.rotation.z = t * (0.15 + j * 0.08) + (j * Math.PI) / 5;
+            });
+          } else {
+            ex.mesh.children.forEach((o, j) => {
+              if (o.userData.isHitbox) return;
+              o.rotation.x = t * 0.35 + j;
+              o.rotation.z = t * 0.2 + j * 0.7;
+            });
+          }
+        }
+
+        const isHov = hoveredExhibit === ex;
+        const targetI = isHov ? (ex.isCenter ? 5 : 4) : (ex.isCenter ? 3 : 2.5);
+        ex.light.intensity += (targetI - ex.light.intensity) * 0.08;
+      });
+
+      hoverCheckFrame++;
+      if (hoverCheckFrame % 2 === 0) checkHover();
+      updateCamAnim();
+
+      if (controls.enabled) {
+        controls.autoRotate = !window._orbitPaused;
+        controls.update();
+      }
+
+      composer.render();
+    }
   </script>
 </body>
 </html>
