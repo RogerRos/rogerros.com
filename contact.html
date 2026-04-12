@@ -565,7 +565,7 @@
       const session = getSession();
       if (!session || Date.now() > session.e) {
         clearSession();
-        window.location.replace('index.html');
+        window.location.replace('login.html');
       }
 
       const TREE = {
