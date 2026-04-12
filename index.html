@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Heads Or Heads</title>
+  <link rel="icon" type="image/svg+xml" href="favicon-locked.svg">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+    :root {
+      --bg: #000;
+      --fg: #fff;
+      --muted: #444;
+      --muted2: #bdbdbd;
+      --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--mono);
+      overflow: hidden;
+    }
+
+    /* Background GIF */
+    .bg-gif {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background: var(--bg) center center / cover no-repeat;
+    }
+
+    /* Use phone gif on portrait/mobile, pc gif on landscape/desktop */
+    @media (orientation: portrait) {
+      .bg-gif { background-image: url('resources/gif/phone.gif'); }
+    }
+    @media (orientation: landscape) {
+      .bg-gif { background-image: url('resources/gif/pc.gif'); }
+    }
+
+    /* Dark overlay so lyrics are readable */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background: rgba(0, 0, 0, 0.45);
+      pointer-events: none;
+      transition: background 0.5s;
+    }
+
+    .overlay.playing {
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    /* Lyrics container */
+    .lyrics-wrap {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px 120px;
+      pointer-events: none;
+    }
+
+    .lyrics {
+      text-align: center;
+      max-width: 600px;
+      width: 100%;
+      max-height: 100%;
+      overflow-y: auto;
+      pointer-events: auto;
+      scrollbar-width: none;
+    }
+
+    .lyrics::-webkit-scrollbar { display: none; }
+
+    .lyric-line {
+      font-size: 15px;
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.2);
+      transition: color 0.4s ease, transform 0.4s ease, text-shadow 0.4s ease;
+      padding: 2px 0;
+      cursor: pointer;
+    }
+
+    .lyric-line.active {
+      color: #fff;
+      transform: scale(1.05);
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+
+    .lyric-line.past {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .lyric-line.spacer {
+      height: 24px;
+    }
+
+    .lyric-line.title {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.15);
+      margin-bottom: 12px;
+    }
+
+    /* Controls bar */
+    .controls {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 20px 24px;
+      background: none;
+    }
+
+    /* Progress bar */
+    .progress-wrap {
+      width: 100%;
+      max-width: 500px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.15);
+      cursor: pointer;
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--fg);
+      transition: width 0.1s linear;
+    }
+
+    .progress-wrap:hover .progress-bar {
+      height: 5px;
+      margin-top: -1px;
+    }
+
+    /* Play button */
+    .play-btn {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 2px solid var(--fg);
+      background: rgba(0, 0, 0, 0.5);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s, background 0.2s;
+      backdrop-filter: blur(4px);
+    }
+
+    .play-btn:hover {
+      transform: scale(1.1);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .play-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: var(--fg);
+    }
+
+    .play-icon-pause { display: none; }
+    .play-btn.playing .play-icon-play { display: none; }
+    .play-btn.playing .play-icon-pause { display: block; }
+
+    /* Time display */
+    .time {
+      margin-top: 10px;
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--muted);
+    }
+
+    /* Back link */
+    .back {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 20;
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      text-decoration: none;
+      padding: 6px 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .back:hover {
+      color: var(--fg);
+      border-color: rgba(255,255,255,0.3);
+    }
+
+    /* Fade-in */
+    .fade-in {
+      opacity: 0;
+      animation: fadeIn 0.8s ease 0.3s forwards;
+    }
+
+    @keyframes fadeIn { to { opacity: 1; } }
+  </style>
+</head>
+<body>
+
+  <div class="bg-gif"></div>
+  <div class="overlay" id="overlay"></div>
+
+  <a class="back" href="login.html">&larr; Back</a>
+
+  <div class="lyrics-wrap fade-in">
+    <div class="lyrics" id="lyrics"></div>
+  </div>
+
+  <div class="controls fade-in">
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <button class="play-btn" id="playBtn">
+      <svg class="play-icon-play" viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg>
+      <svg class="play-icon-pause" viewBox="0 0 24 24"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>
+    </button>
+    <div class="time" id="time">0:00 / 0:00</div>
+  </div>
+
+  <audio id="audio" preload="auto">
+    <source src="resources/music/Heads_Or_Heads_Final_Clean.wav" type="audio/wav">
+  </audio>
+
+  <script>
+  (function() {
+    'use strict';
+
+    // ── Lyrics with timestamps (seconds) ──
+    // Edit the `t` value to sync each line to the audio.
+    // t = time in seconds when this line should become active.
+    const LYRICS = [
+      { t: 0,      text: '' },
+      { t: 9.41,   text: 'Welcome to a Roger Ros production' },
+      { t: 12.23,  text: 'With a long introduction' },
+      { t: 14.64,  text: 'Almost like a sound deconstruction' },
+      { t: 16.95,  text: 'Might this be an overproduction?' },
+      { t: 18.78,  text: '' },
+      { t: 20.64,  text: 'Heads Or Heads' },
+      { t: 22.26,  text: 'Life of empty beds' },
+      { t: 24.79,  text: 'Black and deep reds' },
+      { t: 26.83,  text: 'To inexorable deaths' },
+      { t: 29.5,   text: '' },
+      { t: 30.83,  text: 'You can not wait' },
+      { t: 32.11,  text: 'Can not tolerate' },
+      { t: 33.3,   text: "Won't hesitate" },
+      { t: 34.44,  text: 'Wanna know your fate' },
+      { t: 35.73,  text: "Before it's too late" },
+      { t: 37.01,  text: 'Looking at the gate' },
+      { t: 38.43,  text: 'Silence can frustrate' },
+      { t: 39.96,  text: 'If there is nothing to create' },
+      { t: 41.57,  text: 'There is nothing to celebrate' },
+      { t: 43.68,  text: 'Unable to demonstrate' },
+      { t: 44.84,  text: 'What you can generate' },
+      { t: 46.14,  text: 'No one to fascinate' },
+      { t: 47.45,  text: 'Not able to translate' },
+      { t: 49.36,  text: "Your mind's weight" },
+      { t: 50.9,   text: 'Living without a soulmate' },
+      { t: 53.6,   text: 'People are used to understate' },
+      { t: 55.28,  text: 'The way you operate' },
+      { t: 56.59,  text: 'And this state' },
+      { t: 57.85,  text: 'Will motivate' },
+      { t: 60.5,   text: 'Your growing hate' },
+      { t: 61.76,  text: '' },
+      { t: 63.26,  text: 'Take a look inside my reign' },
+      { t: 64.56,  text: 'It just started to rain' },
+      { t: 65.68,  text: "It's this overpowered brain" },
+      { t: 66.98,  text: 'That no one can explain' },
+      { t: 68.32,  text: 'Designed in Spain' },
+      { t: 69.56,  text: 'The hispanic Bruce Wayne' },
+      { t: 70.89,  text: 'This horizon is plain' },
+      { t: 72.13,  text: 'Look at my domain' },
+      { t: 73.56,  text: 'Indeed it is vain' },
+      { t: 74.82,  text: 'What might it contain?' },
+      { t: 76.35,  text: 'But see the distant stain' },
+      { t: 77.39,  text: 'Slowly becomes a hurricane' },
+      { t: 79.6,   text: 'Nothing will remain' },
+      { t: 80.78,  text: 'Start feeling the pain' },
+      { t: 84.08,  text: '' },
+      { t: 84.53,  text: "I'm just a man" },
+      { t: 85.42,  text: 'With a master plan' },
+      { t: 86.23,  text: 'Both a caveman' },
+      { t: 87.26,  text: 'And a spaceman' },
+      { t: 88.19,  text: 'None understand' },
+      { t: 89.21,  text: 'What I can' },
+      { t: 90.05,  text: 'Across the land with my caravan' },
+      { t: 92.0,   text: 'And the seas with my catamaran' },
+      { t: 93.69,  text: 'Throw your ego to the trash can' },
+      { t: 95.29,  text: 'I am Batman!' },
+      { t: 96.42,  text: '' },
+      { t: 97.51,  text: 'Heads Or Heads' },
+      { t: 99.07,  text: 'Life of empty beds' },
+      { t: 101.55, text: 'Black and deep reds' },
+      { t: 103.71, text: 'To inexorable deaths' },
+      { t: 107.12, text: '' },
+      { t: 107.77, text: 'You can not wait' },
+      { t: 108.84, text: 'Can not tolerate' },
+      { t: 110.06, text: "Won't hesitate" },
+      { t: 111.14, text: 'Wanna know your fate' },
+      { t: 112.48, text: "Before it's too late" },
+      { t: 113.73, text: 'Looking at the gate' },
+      { t: 115.16, text: 'Silence can frustrate' },
+      { t: 116.58, text: 'If there is nothing to create' },
+      { t: 118.26, text: 'There is nothing to celebrate' },
+      { t: 120.52, text: 'Unable to demonstrate' },
+      { t: 121.82, text: 'What you can generate' },
+      { t: 122.89, text: 'No one to fascinate' },
+      { t: 124.24, text: 'Not able to translate' },
+      { t: 126.19, text: "Your mind's weight" },
+      { t: 127.57, text: 'Living without a soulmate' },
+      { t: 130.26, text: 'People are used to understate' },
+      { t: 131.98, text: 'The way you operate' },
+      { t: 133.3,  text: 'And this state' },
+      { t: 134.66, text: 'Will motivate' },
+      { t: 136.83, text: 'Your growing hate' },
+    ];
+
+    // ── Offset: lyrics appear this many seconds early ──
+    const OFFSET = 0.5;
+
+    // ── Build lyrics DOM ──
+    const lyricsEl = document.getElementById('lyrics');
+    const lines = [];
+
+    LYRICS.forEach((entry, i) => {
+      const div = document.createElement('div');
+      div.className = entry.text === '' ? 'lyric-line spacer' : 'lyric-line';
+      div.textContent = entry.text;
+      div.dataset.index = i;
+      div.addEventListener('click', () => {
+        if (audio.duration) {
+          audio.currentTime = Math.max(0, LYRICS[i].t - OFFSET);
+          if (audio.paused) audio.play();
+        }
+      });
+      lyricsEl.appendChild(div);
+      lines.push(div);
+    });
+
+    // ── Audio & controls ──
+    const audio = document.getElementById('audio');
+    const playBtn = document.getElementById('playBtn');
+    const progressBar = document.getElementById('progressBar');
+    const progressWrap = document.getElementById('progressWrap');
+    const timeEl = document.getElementById('time');
+    const overlay = document.getElementById('overlay');
+
+    let currentLine = -1;
+
+    function formatTime(s) {
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60);
+      return m + ':' + sec.toString().padStart(2, '0');
+    }
+
+    // Play / Pause
+    playBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play();
+      } else {
+        audio.pause();
+      }
+    });
+
+    audio.addEventListener('play', () => {
+      playBtn.classList.add('playing');
+      overlay.classList.add('playing');
+    });
+
+    audio.addEventListener('pause', () => {
+      playBtn.classList.remove('playing');
+      overlay.classList.remove('playing');
+    });
+
+    // Progress bar click to seek
+    progressWrap.addEventListener('click', (e) => {
+      const rect = progressWrap.getBoundingClientRect();
+      const pct = (e.clientX - rect.left) / rect.width;
+      audio.currentTime = pct * audio.duration;
+    });
+
+    // Update loop
+    audio.addEventListener('timeupdate', () => {
+      const t = audio.currentTime;
+      const d = audio.duration || 0;
+
+      // Progress
+      if (d > 0) {
+        progressBar.style.width = (t / d * 100) + '%';
+        timeEl.textContent = formatTime(t) + ' / ' + formatTime(d);
+      }
+
+      // Find active lyric line
+      let active = -1;
+      for (let i = LYRICS.length - 1; i >= 0; i--) {
+        if (t >= LYRICS[i].t - OFFSET) {
+          active = i;
+          break;
+        }
+      }
+
+      if (active !== currentLine) {
+        currentLine = active;
+
+        lines.forEach((el, i) => {
+          el.classList.remove('active', 'past');
+          if (i === active) {
+            el.classList.add('active');
+          } else if (i < active) {
+            el.classList.add('past');
+          }
+        });
+
+        // Scroll active line into view
+        if (active >= 0 && lines[active]) {
+          lines[active].scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+        }
+      }
+    });
+
+    // Reset on end
+    audio.addEventListener('ended', () => {
+      playBtn.classList.remove('playing');
+      overlay.classList.remove('playing');
+      currentLine = -1;
+      lines.forEach(el => el.classList.remove('active', 'past'));
+    });
+
+    // Spacebar to play/pause
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && e.target === document.body) {
+        e.preventDefault();
+        playBtn.click();
+      }
+    });
+
+  })();
+  </script>
+</body>
+</html>
