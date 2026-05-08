@@ -64,69 +64,21 @@
   .dot {
     position: absolute;
     left: 50%;
-    top: 0.86em;
-    width: 0.09em;
-    height: 0.09em;
+    top: 0.405em;
+    /* Larger base element avoids sub-pixel snapping */
+    width: 1em;
+    height: 1em;
     background: #9bbcff;
     border-radius: 50%;
+    transform-origin: 50% 50%;
     transform: translate(-50%, 0) scale(0);
     opacity: 0;
-    transform-origin: 50% 50%;
-    animation: tear 7s infinite;
-    will-change: transform, border-radius, opacity;
-  }
-  @keyframes tear {
-    0% {
-      transform: translate(-50%, 0) scale(0);
-      border-radius: 50%;
-      opacity: 0;
-      animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
-    }
-    10% {
-      transform: translate(-50%, 0) scale(1);
-      border-radius: 50%;
-      opacity: 1;
-      animation-timing-function: linear;
-    }
-    32% {
-      transform: translate(-50%, 0) scale(1);
-      border-radius: 50%;
-      opacity: 1;
-      animation-timing-function: ease-in-out;
-    }
-    44% {
-      transform: translate(-50%, 0) scale(1.45);
-      border-radius: 50%;
-      opacity: 1;
-      animation-timing-function: ease-in;
-    }
-    52% {
-      transform: translate(-50%, 0.25em) scale(1.25, 1.85);
-      border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
-      opacity: 1;
-      animation-timing-function: cubic-bezier(0.45, 0, 1, 1);
-    }
-    84% {
-      transform: translate(-50%, 110vh) scale(0.55, 2.05);
-      border-radius: 50% 50% 50% 50% / 82% 82% 18% 18%;
-      opacity: 0.95;
-      animation-timing-function: ease-out;
-    }
-    88% {
-      transform: translate(-50%, 110vh) scale(0.3, 1.5);
-      border-radius: 50% 50% 50% 50% / 82% 82% 18% 18%;
-      opacity: 0;
-    }
-    100% {
-      transform: translate(-50%, 0) scale(0);
-      border-radius: 50%;
-      opacity: 0;
-    }
+    will-change: transform, opacity, border-radius;
+    pointer-events: none;
   }
   @media (prefers-reduced-motion: reduce) {
     .dot {
-      animation: none;
-      transform: translate(-50%, 0) scale(1);
+      transform: translate(-50%, 0) scale(0.09);
       opacity: 1;
     }
   }
@@ -138,5 +90,98 @@
       <span>Was It Worth It</span><span class="qmark"><svg class="hook" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path d="M22 38 C22 8, 78 8, 78 38 C78 64, 50 60, 50 92"/></svg><span class="dot" aria-hidden="true"></span></span>
     </div>
   </div>
+<script>
+(() => {
+  const dot = document.querySelector('.dot');
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  // The dot element is now 1em × 1em.
+  // Original visual size was 0.09em, so rest scale = 0.09
+  const REST  = 0.09;
+  const SWELL = 0.14;
+  const CYCLE = 3.8; // seconds — tighter loop, less dead time
+
+  // Phase durations as fractions of CYCLE (sum = 1)
+  const P = {
+    grow:  0.25,  // fade in + grow to rest
+    hold:  0.08,  // sit still
+    swell: 0.15,  // bulge + droop
+    fall:  0.40,  // drop off screen
+    pause: 0.12   // invisible before next
+  };
+
+  // Smooth easings
+  const easeOutQuart = t => 1 - Math.pow(1 - t, 4);
+  const easeInQuad   = t => t * t;
+  const easeInCubic  = t => t * t * t;
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  let start = null;
+
+  function tick(now) {
+    if (!start) start = now;
+    const t = (((now - start) / 1000) % CYCLE) / CYCLE;
+
+    let sx, sy, translateY, opacity, borderRadius;
+    borderRadius = '50%';
+
+    const t1 = P.grow;
+    const t2 = t1 + P.hold;
+    const t3 = t2 + P.swell;
+    const t4 = t3 + P.fall;
+
+    if (t < t1) {
+      /* ---- GROW ---- */
+      const p = easeOutQuart(t / t1);
+      sx = sy = lerp(0, REST, p);
+      translateY = '0em';
+      opacity = Math.min(p * 2, 1);
+
+    } else if (t < t2) {
+      /* ---- HOLD ---- */
+      sx = sy = REST;
+      translateY = '0em';
+      opacity = 1;
+
+    } else if (t < t3) {
+      /* ---- SWELL + DROOP ---- */
+      const p = easeInQuad((t - t2) / P.swell);
+      sx = lerp(REST, SWELL, p);
+      sy = lerp(REST, SWELL * 1.5, p);
+      const droop = lerp(0, 0.12, p);
+      translateY = droop + 'em';
+      opacity = 1;
+      const r = lerp(50, 36, p);
+      borderRadius = `50% 50% 50% 50% / 60% 60% ${r}% ${r}%`;
+
+    } else if (t < t4) {
+      /* ---- FALL ---- */
+      const p = (t - t3) / P.fall;
+      const ep = easeInCubic(p);
+      const fallVh = ep * 120;
+      sx = lerp(SWELL, SWELL * 0.4, ep);
+      sy = lerp(SWELL * 1.5, SWELL * 2.0, Math.min(p * 2.5, 1));
+      translateY = `calc(0.12em + ${fallVh}vh)`;
+      opacity = p > 0.75 ? lerp(1, 0, (p - 0.75) / 0.25) : 1;
+      const r2 = lerp(36, 16, Math.min(p * 1.5, 1));
+      borderRadius = `50% 50% 50% 50% / 80% 80% ${r2}% ${r2}%`;
+
+    } else {
+      /* ---- PAUSE ---- */
+      sx = sy = 0;
+      translateY = '0em';
+      opacity = 0;
+    }
+
+    dot.style.opacity = opacity;
+    dot.style.borderRadius = borderRadius;
+    dot.style.transform = `translate(-50%, ${translateY}) scale(${sx}, ${sy})`;
+
+    requestAnimationFrame(tick);
+  }
+
+  requestAnimationFrame(tick);
+})();
+</script>
 </body>
 </html>
