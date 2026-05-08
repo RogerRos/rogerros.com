@@ -99,15 +99,15 @@
   // Original visual size was 0.09em, so rest scale = 0.09
   const REST  = 0.09;
   const SWELL = 0.14;
-  const CYCLE = 3.8; // seconds — tighter loop, less dead time
+  const CYCLE = 5.2; // seconds
 
   // Phase durations as fractions of CYCLE (sum = 1)
   const P = {
-    grow:  0.25,  // fade in + grow to rest
-    hold:  0.08,  // sit still
-    swell: 0.15,  // bulge + droop
-    fall:  0.40,  // drop off screen
-    pause: 0.12   // invisible before next
+    grow:  0.22,  // fade in + grow to rest
+    hold:  0.10,  // sit still
+    swell: 0.14,  // bulge + droop
+    fall:  0.32,  // drop off screen
+    pause: 0.22   // invisible before next
   };
 
   // Smooth easings
