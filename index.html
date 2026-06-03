@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+* { box-sizing: border-box; }
+
+/* Holds a black field. */
+body { margin: 0; min-height: 100vh; background: #000; color: #fff; font: 400 14px/1.2 'IBM Plex Mono', monospace; }
+
+/* Anchors the column at a fixed point so nothing reflows when the menu opens. */
+.wrap { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 300px; }
+.wrap > * + * { margin-top: 12px; }
+
+/* Anchors the dropdown to the selector. */
+.field { position: relative; }
+
+/* Frames the inputs identically. */
+input { width: 100%; background: transparent; color: #fff; border: 1px solid #fff; font: inherit; letter-spacing: 0.02em; padding: 13px 14px; outline: none; }
+input::placeholder { color: #666; }
+
+/* Marks the selector as expandable and flips the mark when open. */
+.field::after { content: "+"; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+.field.open::after { content: "\2212"; }
+
+/* Overlays the menu below the selector without shifting the layout. */
+.menu { position: absolute; left: 0; right: 0; top: calc(100% - 1px); border: 1px solid #fff; background: #000; list-style: none; margin: 0; padding: 0; max-height: 220px; overflow-y: auto; display: none; z-index: 1; }
+.menu.open { display: block; }
+.menu li { padding: 13px 14px; cursor: pointer; }
+.menu li + li { border-top: 1px solid #222; }
+.menu li:hover, .menu li.on { background: #fff; color: #000; }
+
+/* Renders the action as a solid block. */
+button { width: 100%; background: #fff; color: #000; border: 1px solid #fff; font: inherit; letter-spacing: 0.02em; padding: 13px 14px; cursor: pointer; outline: none; }
+button:hover { background: #000; color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="field" id="field">
+    <input id="name" placeholder="page" autocomplete="off">
+    <ul class="menu" id="menu"></ul>
+  </div>
+  <input id="key" type="password" placeholder="access key" autocomplete="off">
+  <button id="enter">enter</button>
+</div>
+
+<script>
+// Available pages. Add an entry to expose a page. Name is shown, file is loaded.
+const REGISTRY = [
+  { name: "Contact", file: "contact.html", key: "0928734349z" },
+  { name: "Philosophy", file: "philosophy.html", key: "0928734349z" },
+  { name: "Resources", file: "resources.html", key: "0928734349z" },
+  { name: "New web access", file: "newwebaccess.html", key: "0928734349z" },
+  { name: "Admin access", file: "adminaccess.html", key: "0928734349z" },
+  { name: "General access", file: "generalaccess.html", key: "0928734349z" },
+  { name: "Port 0 access", file: "port0access.html", key: "0928734349z" },
+  { name: "Port 1 access", file: "port1access.html", key: "0928734349z" },
+  { name: "Port 2 access", file: "port2access.html", key: "0928734349z" },
+  { name: "Eng102 Notes", file: "eng102notes.html", key: "102" },
+];
+
+const field = document.getElementById("field");
+const name = document.getElementById("name");
+const menu = document.getElementById("menu");
+const key = document.getElementById("key");
+const enter = document.getElementById("enter");
+
+// The chosen entry, or null when none is chosen.
+let selected = null;
+
+// Opens the dropdown.
+function open() { menu.classList.add("open"); field.classList.add("open"); }
+
+// Closes the dropdown.
+function close() { menu.classList.remove("open"); field.classList.remove("open"); }
+
+// Draws the entries whose name contains the current filter text.
+function render() {
+  const q = name.value.trim().toLowerCase();
+  menu.replaceChildren();
+  for (const e of REGISTRY) {
+    if (!e.name.toLowerCase().includes(q)) continue;
+    const li = document.createElement("li");
+    li.textContent = e.name;
+    if (e === selected) li.className = "on";
+    // Chooses this entry and closes the dropdown.
+    li.addEventListener("click", () => { selected = e; name.value = e.name; close(); });
+    menu.appendChild(li);
+  }
+}
+
+// Grants the session and loads the page when an entry is chosen and the key matches.
+function submit() {
+  if (!selected) return;
+  if (key.value !== selected.key) return;
+  sessionStorage.setItem("grant", "granted");
+  location.href = selected.file;
+}
+
+// Opens the dropdown when the selector takes focus.
+name.addEventListener("focus", () => { open(); render(); });
+
+// Filters the list and clears any previous choice as the name changes.
+name.addEventListener("input", () => { selected = null; open(); render(); });
+
+// Closes the dropdown when the pointer falls outside the selector.
+document.addEventListener("click", (e) => { if (!field.contains(e.target)) close(); });
+
+// Submits on Enter from the key field and on the button.
+key.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+enter.addEventListener("click", submit);
+
+render();
+</script>
+
+</body>
+</html>
